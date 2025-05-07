@@ -70,14 +70,12 @@ def user_logout():
     token_blocked = TokenBlockedList(jti=payload["jti"])
     db.session.add(token_blocked)
     db.session.commit()
-    return jsonify({"msg": "User Logged Out"})
+    return jsonify({"msg": "User Logged Out"}),200
 
 
-@api.route('/hello', methods=['POST', 'GET'])
-def handle_hello():
+@api.route("/private", methods=["GET"])
+@jwt_required()
+def private():
+   actually_user = get_jwt_identity()
+   return jsonify(logged_in_as=actually_user),200
 
-    response_body = {
-        "message": "Hello! I'm a message that came from the backend, check the network tab on the google inspector and you will see the GET request"
-    }
-
-    return jsonify(response_body), 200
