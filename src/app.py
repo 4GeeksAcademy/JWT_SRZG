@@ -11,6 +11,10 @@ from api.routes import api
 from api.admin import setup_admin
 from api.commands import setup_commands
 from flask_jwt_extended import JWTManager
+from datetime import timedelta
+from flask_bcrypt import Bcrypt
+
+
 
 
 # from models import Person
@@ -21,6 +25,9 @@ static_file_dir = os.path.join(os.path.dirname(
 app = Flask(__name__)
 app.url_map.strict_slashes = False
 jwt = JWTManager(app)
+app.config["JWT_ACCES_TOKEN_EXPIRES"]=timedelta(hours=2)
+jwt = JWTManager(app)
+bcrypt =Bcrypt(app)
 # JWT Configuration
 app.config["JWT_SECRET_KEY"] = os.getenv("JWT_SECRET")
 
