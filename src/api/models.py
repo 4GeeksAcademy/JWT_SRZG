@@ -34,7 +34,7 @@ class User(db.Model):
             # do not serialize the password, its a security breach
         }
 
-class Favorite(db.Model):
+class Favorites(db.Model):
     id: Mapped[int] = mapped_column(primary_key=True)
     user:  Mapped[str] = mapped_column(String(40), nullable=False)
     michi: Mapped[str] = mapped_column(String(40), nullable=False)
