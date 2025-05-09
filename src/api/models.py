@@ -6,21 +6,10 @@ db = SQLAlchemy()
 
 
 class User(db.Model):
-    id: Mapped[int] = mapped_column(primary_key=True)
-    email: Mapped[str] = mapped_column(
-        String(120), unique=True, nullable=False)
-    password: Mapped[str] = mapped_column(String(200), nullable=False)
-    fullname: Mapped[str] = mapped_column(String(200), nullable=False)
-    is_active: Mapped[bool] = mapped_column(
-        Boolean(), nullable=False, default=True)
+    sent_reviews = relationship('UserReviewsDetails', foreign_keys='UserReviewsDetails.sender_user_id', backref='sender', lazy=True)
+    received_reviews = relationship('UserReviewsDetails', foreign_keys='UserReviewsDetails.target_user_id', backref='receiver', lazy=True)
 
-    def serialize(self):
-        return {
-            "id": self.id,
-            "email": self.email,
-            "fullname": self.fullname,
-            # do not serialize the password, its a security breach
-        }
+
     
  # User reviews model group   
 class UserReviews(db.Model):
@@ -43,13 +32,16 @@ class UserReviewsDetails(db.Model):
     target_user_id: Mapped[int] = mapped_column(ForeignKey('user.id'), nullable=False)
     sender_user_id: Mapped[int] = mapped_column(ForeignKey('user.id'), nullable=False)
     review_id: Mapped[int] = mapped_column(ForeignKey('userreviews.id'), nullable=False)
+    michi_id: Mapped[int] = mapped_column(ForeignKey('michis.id'), nullable=False)
     user_review = relationship('UserReviews', backref='details', lazy=True)
+    
 
     def serialize(self):
         return { 
             "id":self.id,
             "sender_user_id":self.sender_user_id,
             "target_user_id":self.target_user_id,
+            "michi_id":self.michi_id,
             "review": self.user_review.serialize() if self.user_review else None
         }
 
