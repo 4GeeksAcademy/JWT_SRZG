@@ -21,8 +21,24 @@ class User(db.Model):
             "fullname": self.fullname,
             # do not serialize the password, its a security breach
         }
+    
+class UserReviews(db.Model):
+    __tablename__ = "userreviews"
+    id: Mapped[int] = mapped_column(primary_key=True)
+    user_id: Mapped[int] = mapped_column(ForeignKey('user.id'), nullable=False)
+    rating: Mapped[int] = mapped_column(nullable=False)
+    comment: Mapped[str] = mapped_column(String(300), nullable=true)
+
+    def serialize(self):
+        return {
+            "id": self.id,
+            "user_id": self.id,
+            "rating":self.rating,
+            "comment": self.comment
+        }
 
 
 class TokenBlockedList(db.Model):
+    __tablename__ = "tokenblockedlist"
     id: Mapped[int] = mapped_column(primary_key=True)
     jti: Mapped[str] = mapped_column(String(50), nullable=False)
