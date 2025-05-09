@@ -6,6 +6,7 @@ db = SQLAlchemy()
 
 
 class User(db.Model):
+    __tablename__ = "user"
     id: Mapped[int] = mapped_column(primary_key=True)
     name: Mapped[str] = mapped_column(String(40), nullable=False)
     lastname: Mapped[str] = mapped_column(String(40), nullable=False)
@@ -17,6 +18,8 @@ class User(db.Model):
     password: Mapped[str] = mapped_column(String(200), nullable=False)
     is_active: Mapped[bool] = mapped_column(Boolean(), nullable=False, default=True)
     rol: Mapped[str] = mapped_column(String(40), nullable=False)
+
+    favorites = relationship('Favorites', backref='user', lazy=True)
 
     def serialize(self):
         return {
@@ -36,6 +39,7 @@ class User(db.Model):
 
 
 class Favorites(db.Model):
+    __tablename__ = "favorites"
     id: Mapped[int] = mapped_column(primary_key=True)
     user_id:  Mapped[int] = mapped_column(ForeignKey('user.id'))
     michi_id: Mapped[int] = mapped_column(ForeignKey('michi.id'))
