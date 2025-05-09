@@ -2,7 +2,7 @@
 This module takes care of starting the API Server, Loading the DB and Adding the endpoints
 """
 from flask import Flask, request, jsonify, url_for, Blueprint
-from api.models import db, User, TokenBlockedList
+from api.models import db, User, TokenBlockedList, UserReviews
 from api.utils import generate_sitemap, APIException
 from flask_cors import CORS
 from flask_bcrypt import Bcrypt
@@ -72,7 +72,19 @@ def user_logout():
     db.session.commit()
     return jsonify({"msg": "User Logged Out"}),200
 
+# Review Routes
+@api.route("/user/<int:id>/reviews", methods=["GET"])
+@jwt_required()
+def user_reviews(id):
+    reviews = UserReviews.query.filter_by(user_id=id).all()
+    payload = get_jwt()
+    return jsonify({
+        "reviews": [review.serialize() for review in reviews],
+        "payload": payload
+    }), 200
 
+
+#Private Routes
 @api.route("/private", methods=["GET"])
 @jwt_required()
 def private():
