@@ -1,6 +1,6 @@
 from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy import String, Boolean
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy import String, Boolean, ForeignKey
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 db = SQLAlchemy()
 
@@ -29,23 +29,24 @@ class User(db.Model):
             "email": self.email,
             "phone": self.phone,
             "rol": self.rol
-            
+
 
             # do not serialize the password, its a security breach
         }
 
+
 class Favorites(db.Model):
     id: Mapped[int] = mapped_column(primary_key=True)
-    user:  Mapped[str] = mapped_column(String(40), nullable=False)
-    michi: Mapped[str] = mapped_column(String(40), nullable=False)
-    
+    user_id:  Mapped[int] = mapped_column(ForeignKey('user.id'))
+    michi_id: Mapped[int] = mapped_column(ForeignKey('michi.id'))
+
     def serialize(self):
-        return{
+        return {
             "id": self.id,
-            "user": self.user,
-            "michi": self.michi
+            "user_id": self.user_id,
+            "michi_id": self.michi_id
         }
-        
+
 
 class TokenBlockedList(db.Model):
     id: Mapped[int] = mapped_column(primary_key=True)
