@@ -195,6 +195,5 @@ def delete_user(user_id):
 
 
 
-
  """
 # ROUTES FEDE
