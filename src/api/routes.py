@@ -86,16 +86,28 @@ def private():
 @jwt_required()
 def update_user(user_id):
     body = request.get_json()
+    if not body:
+        return jsonify({"msg": "Debes proporcionar informacion para actulizar el usuario" }), 400
+    
     current_user_id = get_jwt_identity()
+    if current_user_id != user_id:
+        return jsonify({"msg": "No tienes permiso para actualizar ste usuario"}), 403
+
     current_user = User.query.get(current_user_id)
+    if not current_user:
+        return jsonify({"msg": "Usuario no encontrado"}), 404
+    
+    current_user.name = body.get("name", current_user.name)
+    current_user.lastname = body.get("lastname", current_user.lastname)
+    current_user.dni = body.get("dni", current_user.dni)
+    current_user.nickname = body.get("nickname", current_user.nickname)
+    current_user.direction = body.get("direction", current_user.direction)
+    current_user.email = body.get("email", current_user.email)
+    current_user.phone = body.get("phone", current_user.phone)
+    current_user.password = body.get("password", current_user.password)
+    current_user.name = body.get("name", current_user.name)
 
-    current_user = User(
-        name=current_user['name'],
-        lastname=current_user['lastname'],
-        email=current_user['email'],
-        nickname=current_user['nickname']
 
-    )
 
     db.session.add(current_user)
     db.session.commit()
