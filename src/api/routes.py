@@ -102,7 +102,7 @@ def update_user(user_id):
     
     current_user_id = get_jwt_identity()
     if current_user_id != user_id:
-        return jsonify({"msg": "No tienes permiso para actualizar ste usuario"}), 403
+        return jsonify({"msg": "No tienes permiso para actualizar este usuario"}), 403
 
     current_user = User.query.get(current_user_id)
     if not current_user:
@@ -134,29 +134,6 @@ def delete_user(user_id):
 
 
 """ N
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
