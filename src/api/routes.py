@@ -22,7 +22,15 @@ CORS(api)
 @api.route("/register", methods=["POST"])
 def register_user():
     body = request.get_json()
-    new_user = User(email=body["email"], fullname=body["fullname"])
+    new_user = User(
+        name=body["name"],
+        lastname=body["lastname"],
+        dni=body["dni"],
+        nickname=body["nickname"],
+        direction=body["direction"],
+        email=body["email"], 
+        phone=body["phone"], 
+        )
     # Password
     hashed_password = bcrypt.generate_password_hash(
         body["password"]).decode("utf-8")
@@ -30,6 +38,9 @@ def register_user():
     db.session.add(new_user)
     db.session.commit()
     return jsonify(new_user.serialize()), 201
+# faltaria desarrolar mas para que el email tenga formato valido, la contra cumpla con requisitos para mayor seguridad, 
+#el deni dni y telefono tengan formatos esperados y que los campos obligatorios enten presentes en el body.
+# falta manejo de errores por si el usuario se registra con un email o nick name que ya esxite
 
 
 @api.route("/login", methods=["POST"])

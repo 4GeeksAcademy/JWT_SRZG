@@ -20,6 +20,7 @@ class User(db.Model):
     rol: Mapped[str] = mapped_column(String(40), nullable=False)
 
     favorites = relationship('Favorites', backref='user', lazy=True)
+    michis= relationship('michis', backref='user', lazy=True)
 
     def serialize(self):
         return {
