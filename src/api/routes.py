@@ -1,6 +1,8 @@
 """
 This module takes care of starting the API Server, Loading the DB and Adding the endpoints
 """
+
+
 from flask import Flask, request, jsonify, url_for, Blueprint
 from api.models import db, User, TokenBlockedList
 from api.utils import generate_sitemap, APIException
@@ -78,4 +80,3 @@ def user_logout():
 def private():
    actually_user = get_jwt_identity()
    return jsonify(logged_in_as=actually_user),200
-
