@@ -62,6 +62,13 @@ def login_user():
     return jsonify({"token": token}), 200
 
 
+@api.route("/private", methods=["GET"])
+@jwt_required()
+def private():
+    actually_user = get_jwt_identity()
+    return jsonify(logged_in_as=actually_user), 200
+
+
 @api.route("/userinfo", methods=["GET"])
 @jwt_required()
 def user_info():
@@ -84,11 +91,7 @@ def user_logout():
     return jsonify({"msg": "User Logged Out"}), 200
 
 
-@api.route("/private", methods=["GET"])
-@jwt_required()
-def private():
-    actually_user = get_jwt_identity()
-    return jsonify(logged_in_as=actually_user), 200
+
 
 
 # ROUTES FEDE
@@ -134,9 +137,6 @@ def delete_user(user_id):
 
 
 """ N
-
-
-
 
 
 
