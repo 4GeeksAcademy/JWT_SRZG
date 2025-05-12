@@ -172,7 +172,7 @@ def delete_favorite(michi_id):
     
     db.session.delete(favorite_to_delete)
     db.session.commit()
-    
+    return jsonify({"msg": f"Michi with id {michi_id} has been delete"})
 
 
 """ N
