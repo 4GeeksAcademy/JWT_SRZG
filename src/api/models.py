@@ -1,87 +1,68 @@
-from flask import Flask, request, jsonify, url_for, Blueprint
-from api.models import db, User, TokenBlockedList
-from api.utils import generate_sitemap, APIException
-from flask_cors import CORS
-from flask_bcrypt import Bcrypt
-from flask_jwt_extended import create_access_token
-from flask_jwt_extended import get_jwt_identity, get_jwt
-from flask_jwt_extended import jwt_required
 
 
-api = Blueprint('api', __name__)
-app = Flask(__name__)
-bcrypt = Bcrypt(app)
+from sqlalchemy import String, Integer, Float, Boolean, Text, ForeignKey, Enum
+from sqlalchemy.orm import Mapped, mapped_column, relationship
+from api.models import db
+import enum
 
-# Allow CORS requests to this API
-CORS(api)
+class CatSex(enum.Enum):
+    male = "male"
+    female = "female"
 
+class CatUser(db.Model):
+    __tablename__ = "cat_user"
 
-@api.route("/register", methods=["POST"])
-def register_user():
-    body = request.get_json()
-    new_user = User(email=body["email"], fullname=body["fullname"])
-    # Password
-    hashed_password = bcrypt.generate_password_hash(
-        body["password"]).decode("utf-8")
-    new_user.password = hashed_password
-    db.session.add(new_user)
-    db.session.commit()
-    return jsonify(new_user.serialize()), 201
+    id: Mapped[int] = mapped_column(primary_key=True)
+    name: Mapped[str] = mapped_column(String(100), nullable=False)
+    breed: Mapped[str] = mapped_column(String(100), nullable=True)
+    age: Mapped[int] = mapped_column(Integer, nullable=True)
+    weight: Mapped[float] = mapped_column(Float, nullable=True)  
+    description: Mapped[str] = mapped_column(String(255), nullable=True)
+    color: Mapped[str] = mapped_column(String(100), nullable=True)
+    sex: Mapped[str] = mapped_column(String(10), nullable=True)  
+    is_active: Mapped[bool] = mapped_column(Boolean, default=True)
+    
 
+    photos: Mapped[list["CatPhoto"]] = relationship("CatPhoto", back_populates="cat", cascade="all, delete-orphan")
 
-@api.route("/login", methods=["POST"])
-def login_user():
-    body = request.get_json()
-    user = User.query.filter_by(email=body["email"]).first()
-    if user is None:
-        return jsonify({"msg": "Mail not found"}), 401
-    is_valid_password = bcrypt.check_password_hash(
-        user.password, body["password"])
-    if not is_valid_password:
-        return jsonify({"msg": "Invalid password"}), 401
-    payload = {
-        "admin": False,
-        "permisions": 123123
-    }
-    token = create_access_token(identity=str(
-        user.id), additional_claims=payload)
-    return jsonify({"token": token}), 200
+    def serialize(self):
+        return {
+            "id": self.id,
+            "name": self.name,
+            "age": self.age,
+            "color": self.color,
+            "sex": self.sex,
+            "is_active": self.is_active,
+            "photos": [photo.serialize() for photo in self.photos]
+        }
+class CatPhoto(db.Model):
+    __tablename__ = "cat_photo"
 
+    id: Mapped[int] = mapped_column(primary_key=True)
+    foto1: Mapped[str] = mapped_column(Text, nullable=True)
+    foto2: Mapped[str] = mapped_column(Text, nullable=True)
+    foto3: Mapped[str] = mapped_column(Text, nullable=True)
+    foto4: Mapped[str] = mapped_column(Text, nullable=True)
+    foto5: Mapped[str] = mapped_column(Text, nullable=True)
+    
+    cat_id: Mapped[int] = mapped_column(ForeignKey("cat_user.id"), nullable=False)
+    user_id: Mapped[int] = mapped_column(ForeignKey("user.id"), nullable=True)
 
-@api.route("/userinfo", methods=["GET"])
-@jwt_required()
-def user_info():
-    user_id = get_jwt_identity()
-    user = User.query.get(user_id)
-    payload = get_jwt()
-    return jsonify({
-        "user": user.serialize(),
-        "payload": payload
-    })
+    # Relaciones
+    cat: Mapped["CatUser"] = relationship("CatUser", back_populates="photos")
+    user: Mapped["User"] = relationship("User")
 
-
-@api.route("/logout", methods=["POST"])
-@jwt_required()
-def user_logout():
-    payload = get_jwt()
-    token_blocked = TokenBlockedList(jti=payload["jti"])
-    db.session.add(token_blocked)
-    db.session.commit()
-    return jsonify({"msg": "User Logged Out"}),200
-
-
-@api.route("/private", methods=["GET"])
-@jwt_required()
-def private():
-   actually_user = get_jwt_identity()
-   return jsonify(logged_in_as=actually_user),200
-
-
-
-
-
-
-
+    def serialize(self):
+        return {
+            "id": self.id,
+            "foto1": self.foto1,
+            "foto2": self.foto2,
+            "foto3": self.foto3,
+            "foto4": self.foto4,
+            "foto5": self.foto5,
+            "cat_id": self.cat_id,
+            "user_id": self.user_id
+        }
 
 
 
