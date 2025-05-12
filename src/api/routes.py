@@ -135,6 +135,7 @@ def delete_user(user_id):
     db.session.commit()
     return jsonify({"message": f"User with id {user_id} has been deleted."}), 200
 
+
 @app.route('/favorites/<int:michi_id', methods=['POST'])
 @jwt_required()
 def add_favorite(michi_id):
@@ -155,27 +156,26 @@ def add_favorite(michi_id):
     db.session.commit()
     return jsonify({"Michi has been added"}), 201
 
+
+@app.route('/favorites/<int:michi_id>', methods={'DELETE'})
+@jwt_required()
+def delete_favorite(michi_id):
+    current_user_email = get_jwt_identity()
+    user = User.query.filter_by(email=current_user_email).first()
+
+    if not user:
+        return jsonify({"msg": "User not found"}), 404
+    
+    favorite_to_delete = Favorites.query.filter_by(user_id=user.id, michi_id=michi.id) 
+    if not favorite_to_delete:
+        return jsonify({"msg": "This michi is not your favorites"}), 404
+    
+    db.session.delete(favorite_to_delete)
+    db.session.commit()
+    
+
+
 """ N
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
