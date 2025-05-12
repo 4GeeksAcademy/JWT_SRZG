@@ -94,14 +94,16 @@ def user_logout():
 @api.route("/user/<int:id>/reviews", methods=["GET"])
 @jwt_required()
 def get_received_reviews(id):
-    reviews_details = UserReviewsDetails.query.filter_by(target_user_id=id).all()
+    reviews_details = UserReviewsDetails.query.filter_by(
+        target_user_id=id).all()
     return jsonify([review.serialize() for review in reviews_details]), 200
 
 @api.route("/user/sent-reviews", methods=["GET"])
 @jwt_required()
 def get_sent_reviews():
     user_id = get_jwt_identity()
-    reviews_details = UserReviewsDetails.query.filter_by(sender_user_id=user_id).all()
+    reviews_details = UserReviewsDetails.query.filter_by(
+        sender_user_id=user_id).all()
     return jsonify([review.serialize() for review in reviews_details]), 200
 
 @api.route("/user/<int:target_user_id>/<int:michi_id>/review", methods=["POST"])
@@ -110,16 +112,19 @@ def add_review(target_user_id, michi_id):
     body = request.get_json()
     sender_user_id = get_jwt_identity()
     if sender_user_id == target_user_id:
-        return jsonify({"msg":"You cannot rate yourself"}), 409
-    existing_review = UserReviewsDetails.query.filter_by(sender_user_id=sender_user_id, target_user_id=target_user_id, michi_id=michi_id).first()
+        return jsonify({"msg": "You cannot rate yourself"}), 409
+    existing_review = UserReviewsDetails.query.filter_by(
+        sender_user_id=sender_user_id, target_user_id=target_user_id, michi_id=michi_id).first()
     if existing_review:
-        return jsonify({"msg":"You already reviewed this michi"}), 409
-    
-    new_user_review = UserReviews(user_id=sender_user_id, rating=body["rating"],comment=body.get("comment"))
+        return jsonify({"msg": "You already reviewed this michi"}), 409
+
+    new_user_review = UserReviews(
+        user_id=sender_user_id, rating=body["rating"], comment=body.get("comment"))
     db.session.add(new_user_review)
     db.session.commit()
 
-    new_review_relationship = UserReviewsDetails(sender_user_id=sender_user_id, target_user_id=target_user_id, michi_id=michi_id, review_id=new_user_review.id)
+    new_review_relationship = UserReviewsDetails(
+        sender_user_id=sender_user_id, target_user_id=target_user_id, michi_id=michi_id, review_id=new_user_review.id)
     db.session.add(new_review_relationship)
     db.session.commit()
 
