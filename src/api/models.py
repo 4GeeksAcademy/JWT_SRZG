@@ -1,10 +1,95 @@
-
-
 from sqlalchemy import String, Integer, Float, Boolean, Text, ForeignKey, Enum
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from api.models import db
 import enum
 
+class User(db.Model):
+    __tablename__ = "user"
+    id: Mapped[int] = mapped_column(primary_key=True)
+    name: Mapped[str] = mapped_column(String(40), nullable=False)
+    lastname: Mapped[str] = mapped_column(String(40), nullable=False)
+    dni: Mapped[str] = mapped_column(String(20), nullable=False)
+    nickname: Mapped[str] = mapped_column(String(40), nullable=False)
+    direction: Mapped[str] = mapped_column(String(40), nullable=False)
+    email: Mapped[str] = mapped_column(String(120), unique=True, nullable=False)
+    phone: Mapped[str] = mapped_column(String(20), nullable=False)
+    password: Mapped[str] = mapped_column(String(200), nullable=False)
+    is_active: Mapped[bool] = mapped_column(Boolean(), nullable=False, default=True)
+    rol: Mapped[str] = mapped_column(String(40), nullable=False)
+      
+    sent_reviews = relationship('UserReviewsDetails', foreign_keys='UserReviewsDetails.sender_user_id', backref='sender', lazy=True)
+    received_reviews = relationship('UserReviewsDetails', foreign_keys='UserReviewsDetails.target_user_id', backref='receiver', lazy=True)
+    favorites = relationship('Favorites', backref='user', lazy=True)
+    michis= relationship('Michis', backref='user', lazy=True)
+
+    def serialize(self):
+        return {
+            "id": self.id,
+            "name": self.name,
+            "lastname": self.lastname,
+            "dni": self.dni,
+            "nickname": self.nickname,
+            "direction": self.direction,
+            "email": self.email,
+            "phone": self.phone,
+            "rol": self.rol
+
+
+            # do not serialize the password, its a security breach
+        }
+      
+      
+ # User reviews model group   
+class UserReviews(db.Model):
+    __tablename__ = "userreviews"
+    id: Mapped[int] = mapped_column(primary_key=True)
+    user_id: Mapped[int] = mapped_column(ForeignKey('user.id'), nullable=False)
+    rating: Mapped[int] = mapped_column(nullable=False)
+    comment: Mapped[str] = mapped_column(String(300), nullable=True)
+
+    def serialize(self):
+        return {
+            "id": self.id,
+            "rating":self.rating,
+            "comment": self.comment
+        }
+    
+class UserReviewsDetails(db.Model):
+    __tablename__ = "userreviewsdetails"
+    id: Mapped[int] = mapped_column(primary_key=True)
+    target_user_id: Mapped[int] = mapped_column(ForeignKey('user.id'), nullable=False)
+    sender_user_id: Mapped[int] = mapped_column(ForeignKey('user.id'), nullable=False)
+    review_id: Mapped[int] = mapped_column(ForeignKey('userreviews.id'), nullable=False)
+    michi_id: Mapped[int] = mapped_column(ForeignKey('cat_user.id'), nullable=False)
+    user_review = relationship('UserReviews', backref='details', lazy=True)
+    
+
+    def serialize(self):
+        return { 
+            "id":self.id,
+            "sender_user_id":self.sender_user_id,
+            "target_user_id":self.target_user_id,
+            "michi_id":self.michi_id,
+            "review": self.user_review.serialize() if self.user_review else None
+        }
+    
+
+
+
+class Favorites(db.Model):
+    __tablename__ = "favorites"
+    id: Mapped[int] = mapped_column(primary_key=True)
+    user_id:  Mapped[int] = mapped_column(ForeignKey('user.id'))
+    michi_id: Mapped[int] = mapped_column(ForeignKey('cat_user.id'))
+
+    def serialize(self):
+        return {
+            "id": self.id,
+            "user_id": self.user_id,
+            "michi_id": self.michi_id
+        }
+
+#Cat Models
 class CatSex(enum.Enum):
     male = "male"
     female = "female"
@@ -63,196 +148,10 @@ class CatPhoto(db.Model):
             "cat_id": self.cat_id,
             "user_id": self.user_id
         }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-@api.route("/cats", methods=["POST"])
-def create_cat():
-    body = request.get_json()
-
-    new_cat = CatUser(
-        name=body["name"],
-        breed=body.get("breed"),
-        age=body.get("age"),
-        weight=body.get("weight"),
-        description=body.get("description"),
-        color=body.get("color"),
-        sex=body.get("sex"),
-        is_active=body.get("is_active", True)
-    )
-
-    db.session.add(new_cat)
-    db.session.commit()
-    return jsonify(new_cat.serialize()), 201
-
-@api.route("/cats/<int:id>", methods=["DELETE"])
-def delete_cat(id):
-    cat = db.session.get(CatUser, id)
-    if cat is None:
-        return jsonify({"error": "Cat not found"}), 404
-
-    db.session.delete(cat)
-    db.session.commit()
-    return jsonify({"message": "Cat deleted"}), 200
-
-
-@api.route("/cats/<int:id>", methods=["PUT"])
-def update_cat(id):
-    body = request.get_json()
-    cat = db.session.get(CatUser, id)
-    if cat is None:
-        return jsonify({"error": "Cat not found"}), 404
-
-    cat.name = body.get("name", cat.name)
-    cat.breed = body.get("breed", cat.breed)
-    cat.age = body.get("age", cat.age)
-    cat.weight = body.get("weight", cat.weight)
-    cat.description = body.get("description", cat.description)
-    cat.color = body.get("color", cat.color)
-    cat.sex = body.get("sex", cat.sex)
-    cat.is_active = body.get("is_active", cat.is_active)
-
-    db.session.commit()
-    return jsonify(cat.serialize()), 200
-
-
-@api.route("/cat-photos", methods=["POST"])
-def create_cat_photo():
-    body = request.get_json()
-
-    new_photo = CatPhoto(
-        foto1=body.get("foto1"),
-        foto2=body.get("foto2"),
-        foto3=body.get("foto3"),
-        foto4=body.get("foto4"),
-        foto5=body.get("foto5"),
-        cat_id=body["cat_id"],
-        user_id=body.get("user_id")
-    )
-
-    db.session.add(new_photo)
-    db.session.commit()
-    return jsonify(new_photo.serialize()), 201
-
-
-@api.route("/cat-photos/<int:id>", methods=["DELETE"])
-def delete_cat_photo(id):
-    photo = db.session.get(CatPhoto, id)
-    if photo is None:
-        return jsonify({"error": "Photo not found"}), 404
-
-    db.session.delete(photo)
-    db.session.commit()
-    return jsonify({"message": "Photo entry deleted"}), 200
+      
+class TokenBlockedList(db.Model):
+    __tablename__ = "tokenblockedlist"
+    id: Mapped[int] = mapped_column(primary_key=True)
+    jti: Mapped[str] = mapped_column(String(50), nullable=False)
+      
+   
