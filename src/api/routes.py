@@ -1,6 +1,8 @@
 """
 This module takes care of starting the API Server, Loading the DB and Adding the endpoints
 """
+
+
 from flask import Flask, request, jsonify, url_for, Blueprint
 from api.models import db, User, Favorites, TokenBlockedList, UserReviews, UserReviewsDetails
 from api.utils import generate_sitemap, APIException
@@ -208,3 +210,82 @@ def delete_favorite(michi_id):
     db.session.delete(favorite_to_delete)
     db.session.commit()
     return jsonify({"msg": f"Michi with id {michi_id} has been delete"})
+  
+@api.route("/cats", methods=["POST"])
+def create_cat():
+    body = request.get_json()
+
+    new_cat = CatUser(
+        name=body["name"],
+        breed=body.get("breed"),
+        age=body.get("age"),
+        weight=body.get("weight"),
+        description=body.get("description"),
+        color=body.get("color"),
+        sex=body.get("sex"),
+        is_active=body.get("is_active", True)
+    )
+
+    db.session.add(new_cat)
+    db.session.commit()
+    return jsonify(new_cat.serialize()), 201
+
+@api.route("/cats/<int:id>", methods=["DELETE"])
+def delete_cat(id):
+    cat = db.session.get(CatUser, id)
+    if cat is None:
+        return jsonify({"error": "Cat not found"}), 404
+
+    db.session.delete(cat)
+    db.session.commit()
+    return jsonify({"message": "Cat deleted"}), 200
+
+
+@api.route("/cats/<int:id>", methods=["PUT"])
+def update_cat(id):
+    body = request.get_json()
+    cat = db.session.get(CatUser, id)
+    if cat is None:
+        return jsonify({"error": "Cat not found"}), 404
+
+    cat.name = body.get("name", cat.name)
+    cat.breed = body.get("breed", cat.breed)
+    cat.age = body.get("age", cat.age)
+    cat.weight = body.get("weight", cat.weight)
+    cat.description = body.get("description", cat.description)
+    cat.color = body.get("color", cat.color)
+    cat.sex = body.get("sex", cat.sex)
+    cat.is_active = body.get("is_active", cat.is_active)
+
+    db.session.commit()
+    return jsonify(cat.serialize()), 200
+
+
+@api.route("/cat-photos", methods=["POST"])
+def create_cat_photo():
+    body = request.get_json()
+
+    new_photo = CatPhoto(
+        foto1=body.get("foto1"),
+        foto2=body.get("foto2"),
+        foto3=body.get("foto3"),
+        foto4=body.get("foto4"),
+        foto5=body.get("foto5"),
+        cat_id=body["cat_id"],
+        user_id=body.get("user_id")
+    )
+
+    db.session.add(new_photo)
+    db.session.commit()
+    return jsonify(new_photo.serialize()), 201
+
+
+@api.route("/cat-photos/<int:id>", methods=["DELETE"])
+def delete_cat_photo(id):
+    photo = db.session.get(CatPhoto, id)
+    if photo is None:
+        return jsonify({"error": "Photo not found"}), 404
+
+    db.session.delete(photo)
+    db.session.commit()
+    return jsonify({"message": "Photo entry deleted"}), 200

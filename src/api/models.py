@@ -1,10 +1,7 @@
-from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy import String, Boolean, ForeignKey
+from sqlalchemy import String, Integer, Float, Boolean, Text, ForeignKey, Enum
 from sqlalchemy.orm import Mapped, mapped_column, relationship
-
-db = SQLAlchemy()
-
-
+from api.models import db
+import enum
 
 class User(db.Model):
     __tablename__ = "user"
@@ -23,7 +20,7 @@ class User(db.Model):
     sent_reviews = relationship('UserReviewsDetails', foreign_keys='UserReviewsDetails.sender_user_id', backref='sender', lazy=True)
     received_reviews = relationship('UserReviewsDetails', foreign_keys='UserReviewsDetails.target_user_id', backref='receiver', lazy=True)
     favorites = relationship('Favorites', backref='user', lazy=True)
-    michis= relationship('michis', backref='user', lazy=True)
+    michis= relationship('Michis', backref='user', lazy=True)
 
     def serialize(self):
         return {
@@ -63,7 +60,7 @@ class UserReviewsDetails(db.Model):
     target_user_id: Mapped[int] = mapped_column(ForeignKey('user.id'), nullable=False)
     sender_user_id: Mapped[int] = mapped_column(ForeignKey('user.id'), nullable=False)
     review_id: Mapped[int] = mapped_column(ForeignKey('userreviews.id'), nullable=False)
-    michi_id: Mapped[int] = mapped_column(ForeignKey('michis.id'), nullable=False)
+    michi_id: Mapped[int] = mapped_column(ForeignKey('cat_user.id'), nullable=False)
     user_review = relationship('UserReviews', backref='details', lazy=True)
     
 
@@ -83,7 +80,7 @@ class Favorites(db.Model):
     __tablename__ = "favorites"
     id: Mapped[int] = mapped_column(primary_key=True)
     user_id:  Mapped[int] = mapped_column(ForeignKey('user.id'))
-    michi_id: Mapped[int] = mapped_column(ForeignKey('michi.id'))
+    michi_id: Mapped[int] = mapped_column(ForeignKey('cat_user.id'))
 
     def serialize(self):
         return {
@@ -92,8 +89,69 @@ class Favorites(db.Model):
             "michi_id": self.michi_id
         }
 
+#Cat Models
+class CatSex(enum.Enum):
+    male = "male"
+    female = "female"
+
+class CatUser(db.Model):
+    __tablename__ = "cat_user"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    name: Mapped[str] = mapped_column(String(100), nullable=False)
+    breed: Mapped[str] = mapped_column(String(100), nullable=True)
+    age: Mapped[int] = mapped_column(Integer, nullable=True)
+    weight: Mapped[float] = mapped_column(Float, nullable=True)  
+    description: Mapped[str] = mapped_column(String(255), nullable=True)
+    color: Mapped[str] = mapped_column(String(100), nullable=True)
+    sex: Mapped[str] = mapped_column(String(10), nullable=True)  
+    is_active: Mapped[bool] = mapped_column(Boolean, default=True)
+    
+
+    photos: Mapped[list["CatPhoto"]] = relationship("CatPhoto", back_populates="cat", cascade="all, delete-orphan")
+
+    def serialize(self):
+        return {
+            "id": self.id,
+            "name": self.name,
+            "age": self.age,
+            "color": self.color,
+            "sex": self.sex,
+            "is_active": self.is_active,
+            "photos": [photo.serialize() for photo in self.photos]
+        }
+class CatPhoto(db.Model):
+    __tablename__ = "cat_photo"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    foto1: Mapped[str] = mapped_column(Text, nullable=True)
+    foto2: Mapped[str] = mapped_column(Text, nullable=True)
+    foto3: Mapped[str] = mapped_column(Text, nullable=True)
+    foto4: Mapped[str] = mapped_column(Text, nullable=True)
+    foto5: Mapped[str] = mapped_column(Text, nullable=True)
+    
+    cat_id: Mapped[int] = mapped_column(ForeignKey("cat_user.id"), nullable=False)
+    user_id: Mapped[int] = mapped_column(ForeignKey("user.id"), nullable=True)
+
+    # Relaciones
+    cat: Mapped["CatUser"] = relationship("CatUser", back_populates="photos")
+    user: Mapped["User"] = relationship("User")
+
+    def serialize(self):
+        return {
+            "id": self.id,
+            "foto1": self.foto1,
+            "foto2": self.foto2,
+            "foto3": self.foto3,
+            "foto4": self.foto4,
+            "foto5": self.foto5,
+            "cat_id": self.cat_id,
+            "user_id": self.user_id
+        }
       
 class TokenBlockedList(db.Model):
     __tablename__ = "tokenblockedlist"
     id: Mapped[int] = mapped_column(primary_key=True)
     jti: Mapped[str] = mapped_column(String(50), nullable=False)
+      
+   
