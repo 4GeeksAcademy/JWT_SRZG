@@ -131,7 +131,8 @@ class CatUser(db.Model):
             "color": self.color,
             "sex": self.sex,
             "is_active": self.is_active,
-            "photos": [photo.serialize() for photo in self.photos]
+            "photos": [photo.serialize() for photo in self.photos],
+            "user_id": self.user_id
         }
 
 
@@ -139,11 +140,7 @@ class CatPhoto(db.Model):
     __tablename__ = "cat_photo"
 
     id: Mapped[int] = mapped_column(primary_key=True)
-    foto1: Mapped[str] = mapped_column(Text, nullable=True)
-    foto2: Mapped[str] = mapped_column(Text, nullable=True)
-    foto3: Mapped[str] = mapped_column(Text, nullable=True)
-    foto4: Mapped[str] = mapped_column(Text, nullable=True)
-    foto5: Mapped[str] = mapped_column(Text, nullable=True)
+    foto: Mapped[str] = mapped_column(Text, nullable=True)
 
     cat_id: Mapped[int] = mapped_column(
         ForeignKey("cat_user.id"), nullable=False)
@@ -156,11 +153,7 @@ class CatPhoto(db.Model):
     def serialize(self):
         return {
             "id": self.id,
-            "foto1": self.foto1,
-            "foto2": self.foto2,
-            "foto3": self.foto3,
-            "foto4": self.foto4,
-            "foto5": self.foto5,
+            "foto": self.foto,
             "cat_id": self.cat_id,
             "user_id": self.user_id
         }

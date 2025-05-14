@@ -15,8 +15,6 @@ from datetime import timedelta
 from flask_bcrypt import Bcrypt
 
 
-
-
 # from models import Person
 
 ENV = "development" if os.getenv("FLASK_DEBUG") == "1" else "production"
@@ -25,11 +23,10 @@ static_file_dir = os.path.join(os.path.dirname(
 app = Flask(__name__)
 app.url_map.strict_slashes = False
 jwt = JWTManager(app)
-app.config["JWT_ACCES_TOKEN_EXPIRES"]=timedelta(hours=2)
-jwt = JWTManager(app)
-bcrypt =Bcrypt(app)
+bcrypt = Bcrypt(app)
 # JWT Configuration
 app.config["JWT_SECRET_KEY"] = os.getenv("JWT_SECRET")
+app.config["JWT_ACCES_TOKEN_EXPIRES"] = timedelta(hours=2)
 
 
 @jwt.token_in_blocklist_loader
