@@ -32,6 +32,8 @@ def register_user():
         direction=body["direction"],
         email=body["email"],
         phone=body["phone"],
+        is_active=body["is_active"],
+        rol=body["rol"],
     )
     # Password
     hashed_password = bcrypt.generate_password_hash(
@@ -116,7 +118,7 @@ def get_sent_reviews():
 @jwt_required()
 def add_review(target_user_id, michi_id):
     body = request.get_json()
-    sender_user_id = get_jwt_identity()
+    sender_user_id = int(get_jwt_identity())
     if sender_user_id == target_user_id:
         return jsonify({"msg": "You cannot rate yourself"}), 409
     existing_review = UserReviewsDetails.query.filter_by(
@@ -139,6 +141,15 @@ def add_review(target_user_id, michi_id):
 # User Routes
 
 
+@api.route("/users/", methods=["GET"])
+@jwt_required()
+def user_list():
+    users = User.query.all()
+    return jsonify({
+        "users": [user.serialize() for user in users],
+    }), 200
+
+
 @api.route("/user/<int:user_id>", methods=["PUT"])
 @jwt_required()
 def update_user(user_id):
@@ -147,25 +158,33 @@ def update_user(user_id):
         return jsonify({"msg": "Debes proporcionar informacion para actulizar el usuario"}), 400
 
     current_user_id = get_jwt_identity()
-    if current_user_id != user_id:
-        return jsonify({"msg": "No tienes permiso para actualizar este usuario"}), 403
+    if int(current_user_id) != user_id:
+        return jsonify({"msg": f"{user_id} No tienes permiso para actualizar este usuario {current_user_id}"}), 403
 
     current_user = User.query.get(current_user_id)
     if not current_user:
         return jsonify({"msg": "Usuario no encontrado"}), 404
 
-    new_current_user = User(
-        name=body["name"],
-        lastname=body[""],
-        dni=body["dni"],
-        nickname=body["nickname"],
-        direction=body["direction"],
-        email=body["email"],
-        phone=body["phone"],
-        password=body["password"]
-    )
+    new_email = body.get("email")
+    if new_email and new_email != current_user.email:
+        if User.query.filter(User.email == new_email, User.id != current_user.id).first():
+            return jsonify({"msg": "El email ya está en uso por otro usuario"}), 409
+        current_user.email = new_email
 
-    db.session.add(new_current_user)
+    current_user.name = body.get("name", current_user.name)
+    current_user.lastname = body.get("lastname", current_user.lastname)
+    current_user.dni = body.get("dni", current_user.dni)
+    current_user.nickname = body.get("nickname", current_user.nickname)
+    current_user.direction = body.get("direction", current_user.direction)
+    current_user.phone = body.get("phone", current_user.phone)
+    current_user.rol = body.get("rol", current_user.rol)
+
+    if "password" in body:
+        hashed_password = bcrypt.generate_password_hash(
+            body["password"]).decode("utf-8")
+        current_user.password = hashed_password
+
+    db.session.add(current_user)
     db.session.commit()
     return jsonify(current_user.serialize()), 201
 
@@ -178,51 +197,75 @@ def delete_user(user_id):
     return jsonify({"message": f"User with id {user_id} has been deleted."}), 200
 
 
-@app.route('/favorites/<int:michi_id>', methods=['POST'])
+@api.route('/favorites/<int:michi_id>', methods=["POST"])
 @jwt_required()
 def add_favorite(michi_id):
-    # no se si debo ponerlo con user_id o user_email
-    current_user_email = get_jwt_identity()
-    user = User.query.filter_by(email=current_user_email).first()
-    michi = CatUser.query.get(michi_id)
+    current_user_id = get_jwt_identity()
+    user = User.query.get(current_user_id)  # más directo que filter_by(id=...)
 
     if not user:
         return jsonify({"msg": "User not found"}), 404
+
+    michi = CatUser.query.get(michi_id)
     if not michi:
         return jsonify({"msg": "Michi not found"}), 404
 
-    if Favorites.query.filter_by(user_id=user.id, michi_id=michi.id).first():
-        return jsonify({"msg": "This michi is already on your favorites list"}), 409
+    # Verifica si ya existe ese favorito
+    existing_fav = Favorites.query.filter_by(
+        user_id=user.id, michi_id=michi.id).first()
+    if existing_fav:
+        return jsonify({"msg": "This michi is already in your favorites"}), 409
 
+    # Crea y guarda el favorito
     new_favorite = Favorites(user_id=user.id, michi_id=michi.id)
     db.session.add(new_favorite)
     db.session.commit()
-    return jsonify({"Michi has been added"}), 201
+
+    return jsonify({"msg": "Michi has been added to favorites"}), 201
 
 
-@app.route('/favorites/<int:michi_id>', methods={'DELETE'})
+@api.route('/favorites/<int:michi_id>', methods=["DELETE"])
 @jwt_required()
 def delete_favorite(michi_id):
-    current_user_email = get_jwt_identity()
-    user = User.query.filter_by(email=current_user_email).first()
+    current_user_id = get_jwt_identity()
+    user = User.query.get(current_user_id)
 
     if not user:
         return jsonify({"msg": "User not found"}), 404
 
     favorite_to_delete = Favorites.query.filter_by(
-        user_id=user.id, michi_id=michi_id)
+        user_id=user.id, michi_id=michi_id
+    ).first()
+
     if not favorite_to_delete:
-        return jsonify({"msg": "This michi is not your favorites"}), 404
+        return jsonify({"msg": "This michi is not in your favorites"}), 404
 
     db.session.delete(favorite_to_delete)
     db.session.commit()
-    return jsonify({"msg": f"Michi with id {michi_id} has been delete"})
+    return jsonify({"msg": f"Michi with id {michi_id} has been removed from favorites"}), 200
+
+
+@api.route("/cats/<int:cat_id>", methods=["GET"])
+def cat_info(cat_id):
+    cat = CatUser.query.get(cat_id)
+    return jsonify({
+        "cat": cat.serialize(),
+    })
+
+
+@api.route("/cats/", methods=["GET"])
+def cat_list():
+    cats = CatUser.query.all()
+    return jsonify({
+        "cats": [cat.serialize() for cat in cats],
+    }), 200
 
 
 @api.route("/cats", methods=["POST"])
+@jwt_required()
 def create_cat():
     body = request.get_json()
-
+    user_id = get_jwt_identity()
     new_cat = CatUser(
         name=body["name"],
         breed=body.get("breed"),
@@ -231,19 +274,23 @@ def create_cat():
         description=body.get("description"),
         color=body.get("color"),
         sex=body.get("sex"),
-        is_active=body.get("is_active", True)
+        is_active=body.get("is_active", True),
+        user_id=user_id
     )
-
     db.session.add(new_cat)
     db.session.commit()
     return jsonify(new_cat.serialize()), 201
 
 
 @api.route("/cats/<int:id>", methods=["DELETE"])
+@jwt_required()
 def delete_cat(id):
+    user_id = int(get_jwt_identity())
     cat = db.session.get(CatUser, id)
     if cat is None:
         return jsonify({"error": "Cat not found"}), 404
+    if user_id != cat.user_id:
+        return jsonify({"error": "Not authorized"}), 403
 
     db.session.delete(cat)
     db.session.commit()
@@ -251,6 +298,7 @@ def delete_cat(id):
 
 
 @api.route("/cats/<int:id>", methods=["PUT"])
+@jwt_required()
 def update_cat(id):
     body = request.get_json()
     cat = db.session.get(CatUser, id)
@@ -265,23 +313,26 @@ def update_cat(id):
     cat.color = body.get("color", cat.color)
     cat.sex = body.get("sex", cat.sex)
     cat.is_active = body.get("is_active", cat.is_active)
+    cat.user_id = get_jwt_identity()
 
     db.session.commit()
     return jsonify(cat.serialize()), 200
 
 
-@api.route("/cat-photos", methods=["POST"])
-def create_cat_photo():
+@api.route("/cats/<int:cat_id>/photos/", methods=["POST"])
+@jwt_required()
+def create_cat_photo(cat_id):
     body = request.get_json()
+    user_id = int(get_jwt_identity())
+    cat = CatUser.query.filter_by(id=cat_id).first()
+
+    if user_id != cat.user_id:
+        return jsonify({"error": "Not authorized"}), 403
 
     new_photo = CatPhoto(
-        foto1=body.get("foto1"),
-        foto2=body.get("foto2"),
-        foto3=body.get("foto3"),
-        foto4=body.get("foto4"),
-        foto5=body.get("foto5"),
-        cat_id=body["cat_id"],
-        user_id=body.get("user_id")
+        foto=body.get("foto"),
+        cat_id=cat_id,
+        user_id=get_jwt_identity()
     )
 
     db.session.add(new_photo)
@@ -289,11 +340,15 @@ def create_cat_photo():
     return jsonify(new_photo.serialize()), 201
 
 
-@api.route("/cat-photos/<int:id>", methods=["DELETE"])
-def delete_cat_photo(id):
-    photo = db.session.get(CatPhoto, id)
+@api.route("/cats/<int:cat_id>/photos/<int:photo_id>", methods=["DELETE"])
+@jwt_required()
+def delete_cat_photo(cat_id, photo_id):
+    photo = CatPhoto.query.filter_by(id=photo_id, cat_id=cat_id).first()
+    user_id = int(get_jwt_identity())
     if photo is None:
         return jsonify({"error": "Photo not found"}), 404
+    if user_id != photo.user_id:
+        return jsonify({"error": "Not authorized"}), 403
 
     db.session.delete(photo)
     db.session.commit()
