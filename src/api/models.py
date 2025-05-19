@@ -40,9 +40,6 @@ class User(db.Model):
             "email": self.email,
             "phone": self.phone,
             "rol": self.rol
-
-
-            # do not serialize the password, its a security breach
         }
 
  # User reviews model group

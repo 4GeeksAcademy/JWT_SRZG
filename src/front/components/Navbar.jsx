@@ -1,18 +1,24 @@
-import { Link } from "react-router-dom";
+import React from 'react';
+import { Link, useLocation } from 'react-router-dom';
+import { AuthButton } from './AuthButton';
 
 export const Navbar = () => {
+	const location = useLocation();
+	const isLoggedIn = !!localStorage.getItem('token');
+	const isOnRegisterPage = location.pathname === '/register';
 
 	return (
-		<nav className="navbar navbar-light bg-light">
-			<div className="container">
-				<Link to="/">
-					<span className="navbar-brand mb-0 h1">React Boilerplate</span>
-				</Link>
-				<div className="ml-auto">
-					<Link to="/demo">
-						<button className="btn btn-primary">Check the Context in action</button>
+		<nav className="navbar navbar-dark bg-dark px-4">
+			<span className="navbar-brand mb-0 h1">4 Michis</span>
+
+			<div className="d-flex gap-2">
+				{!isLoggedIn && !isOnRegisterPage && (
+					<Link to="/register" className="btn btn-outline-light">
+						Register
 					</Link>
-				</div>
+				)}
+
+				<AuthButton />
 			</div>
 		</nav>
 	);
