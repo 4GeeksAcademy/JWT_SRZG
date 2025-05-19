@@ -42,9 +42,6 @@ def register_user():
     db.session.add(new_user)
     db.session.commit()
     return jsonify(new_user.serialize()), 201
-# faltaria desarrolar mas para que el email tenga formato valido, la contra cumpla con requisitos para mayor seguridad,
-# el deni dni y telefono tengan formatos esperados y que los campos obligatorios enten presentes en el body.
-# falta manejo de errores por si el usuario se registra con un email o nick name que ya esxite
 
 
 @api.route("/login", methods=["POST"])
