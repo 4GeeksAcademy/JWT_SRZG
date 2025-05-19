@@ -10,7 +10,7 @@ import { Single } from "./pages/Single";
 import { RegisterForm } from "./pages/RegisterForm";
 import { LoginForm } from "./components/LoginForm";
 import { PrivateRoute } from './components/PrivateRoute';
-import { PrivatePage } from './pages/PrivatePage';
+import { Profile } from './pages/Profile';
 
 export const router = createBrowserRouter(
   createRoutesFromElements(
@@ -21,7 +21,7 @@ export const router = createBrowserRouter(
       <Route path="/login" element={<LoginForm />} />
       <Route path="/private" element={
         <PrivateRoute>
-          <PrivatePage />
+          <Profile />
         </PrivateRoute>
       } />
     </Route>
