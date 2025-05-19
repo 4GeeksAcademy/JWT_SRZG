@@ -9,7 +9,7 @@ export const AuthButton = () => {
     const handleClick = () => {
         if (isLoggedIn) {
             localStorage.removeItem('token');
-            navigate('/login');
+            navigate('/');
         } else {
             navigate('/login');
         }
