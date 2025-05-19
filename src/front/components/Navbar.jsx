@@ -17,7 +17,6 @@ export const Navbar = () => {
 						Register
 					</Link>
 				)}
-
 				<AuthButton />
 			</div>
 		</nav>
