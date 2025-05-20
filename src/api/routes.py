@@ -186,7 +186,7 @@ def update_user(user_id):
     return jsonify(current_user.serialize()), 201
 
 
-@app.route('/user/<int:user_id>', methods=['DELETE'])
+@api.route('/user/<int:user_id>', methods=['DELETE'])
 def delete_user(user_id):
     user = User.query.get(user_id)
     db.session.delete(user)
