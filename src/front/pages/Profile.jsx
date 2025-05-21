@@ -3,6 +3,7 @@ import { Favorites } from "../components/Favorites";
 import { Ratings } from "../components/Ratings";
 import { MyData } from "../components/MyData";
 import useGlobalReducer from "../hooks/useGlobalReducer";
+import { EditProfile } from "../components/EditProfile";
 
 export const Profile = () => {
     const [userName, setUserName] = useState("usuario")
@@ -52,14 +53,17 @@ export const Profile = () => {
         fetchUserInfo();
     }, [token]);
 
-    const handleShowFavorites = () => {
+    /* const handleShowFavorites = () => {
         setActiveSection('favorites');
-    };
-    const handleShowRatings = () => {
+    }; */
+    /* const handleShowRatings = () => {
         setActiveSection('ratings');
-    };
+    }; */
     const handleShowMyData = () => {
         setActiveSection('my-data');
+    };
+    const handleShowEditProfile = () => {
+        setActiveSection('edit-profile');
     };
 
     return (
@@ -74,8 +78,8 @@ export const Profile = () => {
                         <div className="d-flex justify-content-end">
                             <div className="m-5">
                                 <button className="btn btn-success m-2">MIS MICHIS</button>
-                                <button className="btn btn-success m-2" onClick={handleShowRatings}>VALORACIONES</button>
-                                <button className="btn btn-success m-2" onClick={handleShowFavorites}>FAVORITOS</button>
+                                <button className="btn btn-success m-2" /* onClick={handleShowRatings} */>VALORACIONES</button>
+                                <button className="btn btn-success m-2" /* onClick={handleShowFavorites} */>FAVORITOS</button>
                                 <button className="btn btn-success m-2" onClick={handleShowMyData}>MIS DATOS</button>
                             </div>
                         </div>
@@ -94,6 +98,11 @@ export const Profile = () => {
                     {activeSection === 'my-data' && (
                         <div className="mt-5">
                             <MyData />
+                        </div>
+                    )}
+                    {activeSection === 'edit-profile' && (
+                        <div className="mt-5">
+                            <EditProfile />
                         </div>
                     )}
                 </div>

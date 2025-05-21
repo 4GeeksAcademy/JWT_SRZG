@@ -25,7 +25,7 @@ export const router = createBrowserRouter(
           <Profile />
         </PrivateRoute>
       } />
-      <Route path="/editprofile" element={<EditProfile />} />
+
 
     </Route>
   ),
