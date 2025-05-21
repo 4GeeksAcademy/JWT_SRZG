@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Favorites } from "../components/Favorites";
 import { Ratings } from "../components/Ratings";
 import { MyData } from "../components/MyData";
+import useGlobalReducer from "../hooks/useGlobalReducer";
 
 export const Profile = () => {
     const [userName, setUserName] = useState("usuario")
@@ -9,7 +10,12 @@ export const Profile = () => {
 
     const token = localStorage.getItem('token');
 
+    const { store, dispatch } = useGlobalReducer();
+    const { userData } = store;
+
+
     useEffect(() => {
+
         const fetchUserInfo = async () => {
             if (!token) {
                 setUserName("Invitado");
@@ -29,6 +35,8 @@ export const Profile = () => {
                 if (response.ok) {
                     const data = await response.json();
                     setUserName(data.user.name);
+                    dispatch({ type: "set_user_data", payload: data.user })
+                    console.log(data)
                 } else {
 
                     console.error("Error al obtener la información del usuario:", response.status, await response.text());
@@ -61,7 +69,7 @@ export const Profile = () => {
             {token ? (
                 <div>
                     <div className="rounded bg-body-secondary p-3 m-3">
-                        <h1>Hola, {userName}</h1>
+                        <h1>Hola, {userData.name}</h1>
                         <p>Este es tu perfil de usuario</p>
                         <div className="d-flex justify-content-end">
                             <div className="m-5">

@@ -11,6 +11,7 @@ import { RegisterForm } from "./pages/RegisterForm";
 import { LoginForm } from "./components/LoginForm";
 import { PrivateRoute } from './components/PrivateRoute';
 import { Profile } from './pages/Profile';
+import { EditProfile } from "./components/EditProfile";
 
 export const router = createBrowserRouter(
   createRoutesFromElements(
@@ -24,6 +25,8 @@ export const router = createBrowserRouter(
           <Profile />
         </PrivateRoute>
       } />
+      <Route path="/editprofile" element={<EditProfile />} />
+
     </Route>
   ),
   {
