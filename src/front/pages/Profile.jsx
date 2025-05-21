@@ -4,6 +4,7 @@ import { Ratings } from "../components/Ratings";
 import { MyData } from "../components/MyData";
 import useGlobalReducer from "../hooks/useGlobalReducer";
 import { EditProfile } from "../components/EditProfile";
+import { useLocation } from "react-router-dom";
 
 export const Profile = () => {
     const [userName, setUserName] = useState("usuario")
@@ -66,10 +67,19 @@ export const Profile = () => {
         setActiveSection('edit-profile');
     };
 
+    const location = useLocation();
+
+    useEffect(() => {
+        const params = new URLSearchParams(location.search);
+        const section = params.get("section");
+
+        if (section) {
+            setActiveSection(section);
+        }
+    }, [location]);
+
     return (
         <div className="container py-5">
-            <h1 className="mb-4">Zona Privada</h1>
-
             {token ? (
                 <div>
                     <div className="rounded bg-body-secondary p-3 m-3">
