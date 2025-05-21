@@ -27,7 +27,7 @@ export const Ratings = () => {
                 }
 
                 const data = await response.json();
-                setRatings(data.valoraciones);
+                setRatings(Array.isArray(data.valoraciones) ? data.valoraciones : []);
                 setErrorMessage(null);
                 setLoading(false);
                 console.log("Datos de valoraciones obtenidos:", data);
