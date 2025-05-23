@@ -3,7 +3,6 @@ import {
   createRoutesFromElements,
   Route,
 } from "react-router-dom";
-
 import { Layout } from "./pages/Layout";
 import { Home } from "./pages/Home";
 import { Single } from "./pages/Single";
@@ -11,7 +10,9 @@ import { RegisterForm } from "./pages/RegisterForm";
 import { LoginForm } from "./components/LoginForm";
 import { PrivateRoute } from './components/PrivateRoute';
 import { Profile } from './pages/Profile';
+import CatProfilePage from "./pages/CatProfilePage";
 import { EditProfile } from "./components/EditProfile";
+
 
 export const router = createBrowserRouter(
   createRoutesFromElements(
@@ -20,14 +21,18 @@ export const router = createBrowserRouter(
       <Route path="single/:theId" element={<Single />} />
       <Route path="/register" element={<RegisterForm />} />
       <Route path="/login" element={<LoginForm />} />
+     
       <Route path="/private" element={
         <PrivateRoute>
           <Profile />
         </PrivateRoute>
+        
       } />
 
+      <Route path="/cat/:catId" element={<CatProfilePage />} />
 
     </Route>
+    
   ),
   {
     future: {
