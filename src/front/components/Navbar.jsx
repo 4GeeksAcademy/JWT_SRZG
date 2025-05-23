@@ -19,7 +19,7 @@ export const Navbar = () => {
 
 			<div className="d-flex gap-2">
 				{!isLoggedIn && !isOnRegisterPage && (
-					<Link to="/register" className="btn btn-outline-light">
+					<Link to="/register" className="btn btn-outline-dark">
 						Register
 					</Link>
 				)}

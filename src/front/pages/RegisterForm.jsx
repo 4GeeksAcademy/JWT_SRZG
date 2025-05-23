@@ -13,7 +13,7 @@ export const RegisterForm = () => {
         email: '',
         phone: '',
         is_active: true,
-        rol: '',
+        rol: 1,
         password: '',
     });
 
@@ -82,7 +82,7 @@ export const RegisterForm = () => {
         <form onSubmit={handleSubmit} className="p-4 bg-light rounded shadow">
             <h2>Registro de Usuario</h2>
 
-            {['name', 'lastname', 'dni', 'nickname', 'direction', 'email', 'phone', 'rol', 'password'].map((field) => (
+            {['name', 'lastname', 'dni', 'nickname', 'direction', 'email', 'phone', 'password'].map((field) => (
                 <div key={field} className="mb-3">
                     <label htmlFor={field} className="form-label">
                         {field.charAt(0).toUpperCase() + field.slice(1)}
