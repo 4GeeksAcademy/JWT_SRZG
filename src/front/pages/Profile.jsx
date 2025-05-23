@@ -97,7 +97,7 @@ export const Profile = () => {
                     )}
                     {activeSection === 'my-data' && (
                         <div className="mt-5">
-                            <MyData />
+                            <MyData onEditClick={handleShowEditProfile} />
                         </div>
                     )}
                     {activeSection === 'edit-profile' && (
