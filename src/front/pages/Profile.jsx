@@ -84,15 +84,6 @@ export const Profile = () => {
                 <div>
                     <div className="rounded bg-body-secondary p-3 m-3">
                         <h1>Hola, {userData.name}</h1>
-                        <p>Este es tu perfil de usuario</p>
-                        <div className="d-flex justify-content-end">
-                            <div className="m-5">
-                                <button className="btn btn-success m-2">MIS MICHIS</button>
-                                <button className="btn btn-success m-2" /* onClick={handleShowRatings} */>VALORACIONES</button>
-                                <button className="btn btn-success m-2" /* onClick={handleShowFavorites} */>FAVORITOS</button>
-                                <button className="btn btn-success m-2" onClick={handleShowMyData}>MIS DATOS</button>
-                            </div>
-                        </div>
                     </div>
 
                     {activeSection === 'favorites' && (

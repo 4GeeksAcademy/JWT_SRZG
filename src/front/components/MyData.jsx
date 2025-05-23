@@ -22,7 +22,6 @@ export const MyData = ({ onEditClick }) => {
                 <p><strong>Email:</strong> {userData.email}</p>
                 <p><strong>Teléfono:</strong> {userData.phone}</p>
                 <p><strong>Dirección:</strong> {userData.direction}</p>
-                <p><strong>Rol:</strong> {userData.rol}</p>
 
                 <button
                     className="btn btn-primary mt-3"
