@@ -1,5 +1,6 @@
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
+import { AccountMenu } from './AccountMenu';
 
 export const AuthButton = () => {
     const navigate = useNavigate();
@@ -16,8 +17,13 @@ export const AuthButton = () => {
     };
 
     return (
-        <button onClick={handleClick} className="btn btn-primary">
-            {isLoggedIn ? 'Logout' : 'Login'}
-        </button>
+        <>
+            {isLoggedIn && (
+                <AccountMenu />
+            )}
+            <button onClick={handleClick} className="btn btn-primary">
+                {isLoggedIn ? 'Logout' : 'Login'}
+            </button>
+        </>
     );
 };

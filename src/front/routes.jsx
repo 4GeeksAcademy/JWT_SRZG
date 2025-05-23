@@ -3,7 +3,6 @@ import {
   createRoutesFromElements,
   Route,
 } from "react-router-dom";
-
 import { Layout } from "./pages/Layout";
 import { Home } from "./pages/Home";
 import { Single } from "./pages/Single";
@@ -12,6 +11,7 @@ import { LoginForm } from "./components/LoginForm";
 import { PrivateRoute } from './components/PrivateRoute';
 import { Profile } from './pages/Profile';
 import CatProfilePage from "./pages/CatProfilePage";
+import { EditProfile } from "./components/EditProfile";
 
 
 export const router = createBrowserRouter(
@@ -28,7 +28,9 @@ export const router = createBrowserRouter(
         </PrivateRoute>
         
       } />
+
       <Route path="/cat/:catId" element={<CatProfilePage />} />
+
     </Route>
     
   ),

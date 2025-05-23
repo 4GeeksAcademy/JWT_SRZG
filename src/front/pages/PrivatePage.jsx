@@ -5,7 +5,7 @@ export const PrivatePage = () => {
 
     return (
         <div className="container py-5">
-            <h1 className="mb-4">Zona Privada</h1>
+            <h1 className="mb-4">Perfil de usuario</h1>
 
             {token ? (
                 <>
