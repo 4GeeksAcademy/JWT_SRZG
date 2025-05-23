@@ -19,10 +19,8 @@ export const WelcomeBox = () => {
       <p className="mb-6">
         ¿Estás listo/a para abrir tu corazón y tu hogar a uno de ellos?
       </p>
-      <Link to="/register">
-        <button className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded">
-          REGÍSTRATE
-        </button>
+      <Link to="/register" className="btn btn-primary">
+        ¡Regístrate!
       </Link>
     </div>
   );
