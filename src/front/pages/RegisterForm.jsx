@@ -103,7 +103,9 @@ export const RegisterForm = () => {
                         </div>
                     ))}
 
-                    <button type="submit" className="btn btn-primary">Registrar</button>
+                    <div className="d-flex justify-content-end">
+                        <button type="submit" className="btn btn-primary">Registrar</button>
+                    </div>
 
                     {submitStatus && (
                         <div className="mt-3 alert alert-info">{submitStatus}</div>

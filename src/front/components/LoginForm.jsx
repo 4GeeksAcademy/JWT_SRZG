@@ -58,38 +58,44 @@ export const LoginForm = () => {
     };
 
     return (
-        <form onSubmit={handleSubmit} className="p-4 bg-light rounded shadow">
-            <h2>Iniciar Sesión</h2>
+        <div className="d-flex justify-content-center">
+            <div className="col-4 p-8 mt-5 mb-5">
+                <form onSubmit={handleSubmit} className="p-4 bg-light rounded shadow">
+                    <h2>Iniciar Sesión</h2>
 
-            <div className="mb-3">
-                <label htmlFor="email" className="form-label">Correo electrónico</label>
-                <input
-                    type="email"
-                    className={`form-control ${errors.email ? 'is-invalid' : ''}`}
-                    id="email"
-                    name="email"
-                    value={formData.email}
-                    onChange={handleChange}
-                />
-                {errors.email && <div className="invalid-feedback">{errors.email}</div>}
-            </div>
+                    <div className="mb-3">
+                        <label htmlFor="email" className="form-label">Correo electrónico</label>
+                        <input
+                            type="email"
+                            className={`form-control ${errors.email ? 'is-invalid' : ''}`}
+                            id="email"
+                            name="email"
+                            value={formData.email}
+                            onChange={handleChange}
+                        />
+                        {errors.email && <div className="invalid-feedback">{errors.email}</div>}
+                    </div>
 
-            <div className="mb-3">
-                <label htmlFor="password" className="form-label">Contraseña</label>
-                <input
-                    type="password"
-                    className={`form-control ${errors.password ? 'is-invalid' : ''}`}
-                    id="password"
-                    name="password"
-                    value={formData.password}
-                    onChange={handleChange}
-                />
-                {errors.password && <div className="invalid-feedback">{errors.password}</div>}
-            </div>
+                    <div className="mb-3">
+                        <label htmlFor="password" className="form-label">Contraseña</label>
+                        <input
+                            type="password"
+                            className={`form-control ${errors.password ? 'is-invalid' : ''}`}
+                            id="password"
+                            name="password"
+                            value={formData.password}
+                            onChange={handleChange}
+                        />
+                        {errors.password && <div className="invalid-feedback">{errors.password}</div>}
+                    </div>
+                    <div className="d-flex justify-content-end">
+                        <button type="submit" className="btn btn-primary">Entrar</button>
+                    </div>
 
-            <button type="submit" className="btn btn-primary">Entrar</button>
+                    {submitStatus && <div className="mt-3 alert alert-info">{submitStatus}</div>}
+                </form>
 
-            {submitStatus && <div className="mt-3 alert alert-info">{submitStatus}</div>}
-        </form>
+            </div >
+        </div >
     );
 };

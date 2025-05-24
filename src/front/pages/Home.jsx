@@ -37,10 +37,10 @@ export const Home = () => {
 	}, [])
 
 	return (
-	<div>
-      <WelcomeBox />
-      <CatGallery />
-    </div>
-		
+		<div className="flex-fill">
+			<WelcomeBox />
+			<CatGallery />
+		</div>
+
 	);
 }; 
