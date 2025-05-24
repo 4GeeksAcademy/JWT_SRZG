@@ -79,45 +79,51 @@ export const RegisterForm = () => {
     };
 
     return (
-        <form onSubmit={handleSubmit} className="p-4 bg-light rounded shadow">
-            <h2>Registro de Usuario</h2>
+        <div className="register-container d-flex justify-content-center">
+            <div className="register-form col-4 p-8 mt-5 mb-5">
+                <form onSubmit={handleSubmit} className="p-4 bg-light rounded shadow">
+                    <h2>Registro como Michi Lover</h2>
+                    <hr></hr>
+                    <p>Te estás registrando en el sistema de distribución de gatos más adorable de la red, no te vas a arrepentir de esta gran decisión</p>
 
-            {['name', 'lastname', 'dni', 'nickname', 'direction', 'email', 'phone', 'password'].map((field) => (
-                <div key={field} className="mb-3">
-                    <label htmlFor={field} className="form-label">
-                        {field.charAt(0).toUpperCase() + field.slice(1)}
-                    </label>
-                    <input
-                        type={field === 'password' ? 'password' : 'text'}
-                        className={`form-control ${errors[field] ? 'is-invalid' : ''}`}
-                        id={field}
-                        name={field}
-                        value={formData[field]}
-                        onChange={handleChange}
-                    />
-                    {errors[field] && <div className="invalid-feedback">{errors[field]}</div>}
-                </div>
-            ))}
+                    {['name', 'lastname', 'dni', 'nickname', 'direction', 'email', 'phone', 'password'].map((field) => (
+                        <div key={field} className="mb-3">
+                            <label htmlFor={field} className="form-label">
+                                {field.charAt(0).toUpperCase() + field.slice(1)}
+                            </label>
+                            <input
+                                type={field === 'password' ? 'password' : 'text'}
+                                className={`form-control ${errors[field] ? 'is-invalid' : ''}`}
+                                id={field}
+                                name={field}
+                                value={formData[field]}
+                                onChange={handleChange}
+                            />
+                            {errors[field] && <div className="invalid-feedback">{errors[field]}</div>}
+                        </div>
+                    ))}
 
-            <div className="mb-3 form-check">
-                <input
-                    type="checkbox"
-                    className="form-check-input"
-                    id="is_active"
-                    name="is_active"
-                    checked={formData.is_active}
-                    onChange={handleChange}
-                />
-                <label className="form-check-label" htmlFor="is_active">
-                    Activo
-                </label>
+                    <div className="mb-3 form-check">
+                        <input
+                            type="checkbox"
+                            className="form-check-input"
+                            id="is_active"
+                            name="is_active"
+                            checked={formData.is_active}
+                            onChange={handleChange}
+                        />
+                        <label className="form-check-label" htmlFor="is_active">
+                            Activo
+                        </label>
+                    </div>
+
+                    <button type="submit" className="btn btn-primary">Registrar</button>
+
+                    {submitStatus && (
+                        <div className="mt-3 alert alert-info">{submitStatus}</div>
+                    )}
+                </form>
             </div>
-
-            <button type="submit" className="btn btn-primary">Registrar</button>
-
-            {submitStatus && (
-                <div className="mt-3 alert alert-info">{submitStatus}</div>
-            )}
-        </form>
+        </div>
     );
 };
