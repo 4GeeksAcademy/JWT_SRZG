@@ -103,20 +103,6 @@ export const RegisterForm = () => {
                         </div>
                     ))}
 
-                    <div className="mb-3 form-check">
-                        <input
-                            type="checkbox"
-                            className="form-check-input"
-                            id="is_active"
-                            name="is_active"
-                            checked={formData.is_active}
-                            onChange={handleChange}
-                        />
-                        <label className="form-check-label" htmlFor="is_active">
-                            Activo
-                        </label>
-                    </div>
-
                     <button type="submit" className="btn btn-primary">Registrar</button>
 
                     {submitStatus && (
