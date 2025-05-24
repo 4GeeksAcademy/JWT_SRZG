@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import useGlobalReducer from "../hooks/useGlobalReducer";
-
+import { useNavigate } from "react-router-dom";
 export const EditProfile = () => {
 
     const { store, dispatch } = useGlobalReducer();
@@ -13,6 +13,7 @@ export const EditProfile = () => {
     const [dni, setDni] = useState("");
     const [phone, setPhone] = useState("");
     const [direction, setDirection] = useState("");
+    const navigate = useNavigate();
 
     const token = localStorage.getItem('token');
 
@@ -69,29 +70,26 @@ export const EditProfile = () => {
 
 
         try {
-            // Realizar la solicitud PUT a tu API
+
             const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/user/${userData.id}`, {
-                method: 'PUT', // Método HTTP para actualizar recursos
+                method: 'PUT',
                 headers: {
-                    'Content-Type': 'application/json', // Indica que el cuerpo de la solicitud es JSON
-                    'Authorization': `Bearer ${token}` // Envía el token para autenticación
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
                 },
-                body: JSON.stringify(updatedData) // Convierte el objeto JavaScript a una cadena JSON
+                body: JSON.stringify(updatedData)
             });
 
             if (response.ok) {
-                // Si la respuesta es exitosa (código 2xx)
+
                 const data = await response.json();
-                // Actualiza los datos del usuario en tu store global
-                dispatch({ type: "set_user_data", payload: data.user });
+                dispatch({ type: "set_user_data", payload: data });
                 console.log("Perfil actualizado con éxito:", data);
-                // Aquí podrías, por ejemplo, redirigir al usuario o refrescar la sección de "Mis Datos"
+                navigate('/private?section=my-data')
             } else {
-                // Si la respuesta no fue exitosa (ej. 400, 401, 500)
                 console.error("Error al actualizar el perfil:", response.status, await response.text());
             }
         } catch (err) {
-            // Captura errores de red o cualquier otra excepción durante la solicitud
             console.error("Error de conexión al actualizar el perfil:", err);
         }
     }
