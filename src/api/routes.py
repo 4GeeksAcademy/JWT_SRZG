@@ -13,6 +13,14 @@ from flask_jwt_extended import get_jwt_identity, get_jwt
 from flask_jwt_extended import jwt_required
 
 
+import cloudinary
+from cloudinary import CloudinaryImage
+from cloudinary.uploader import upload
+from cloudinary.utils import cloudinary_url
+
+cloudinary_config = cloudinary.config(secure=True)
+
+
 api = Blueprint('api', __name__)
 app = Flask(__name__)
 bcrypt = Bcrypt(app)
@@ -75,10 +83,15 @@ def private():
 def user_info():
     user_id = get_jwt_identity()
     user = User.query.get(user_id)
+    photo_url = cloudinary_url(user.profile_picture, crop="fill", width=400,
+                               height=400)
+
     payload = get_jwt()
     return jsonify({
         "user": user.serialize(),
-        "payload": payload
+        "payload": payload,
+        "profilePicture": photo_url[0]
+
     })
 
 
@@ -350,3 +363,31 @@ def delete_cat_photo(cat_id, photo_id):
     db.session.delete(photo)
     db.session.commit()
     return jsonify({"message": "Photo entry deleted"}), 200
+
+
+@api.route("/profilepicture", methods=["PUT"])
+@jwt_required()
+def user_profile_picture():
+    user_id = get_jwt_identity()
+    # validamos el usuario del token
+    user = User.query.get(user_id)  # buscamos el usuario en la base de datos
+    if user is None:
+        return jsonify({"msg": "No se encontro el usuario"}), 403
+    # validamos que la peticion contenga la imagen
+    # esta vez la peticion no sera json sino form data
+    photo = request.files["photo"]
+    if photo is None:
+        return jsonify({"msg": "No se envio una imagen"}), 400
+    # se carga la imagen a cloudinary
+    # llamamos a l a galeria de cloudinary para hacer la carga de la foto
+    upload_result = upload(photo)
+    print(upload_result)
+    """ photo_url = cloudinary_url(upload_result['public_id'], format="jpg", crop="fill", width=100,
+                               height=100) """
+    # actulizar el usuario con la direccion del recurso en cloudinary
+    user.profile_picture = upload_result["public_id"]
+    db.session.add(user)
+    db.session.commit()
+    photo_url = cloudinary_url(user.profile_picture)
+    # se respponde con un mensaje y la direccion de la foto
+    return jsonify({"userId": user_id, "msg": "foto actualizada", "profilePicture": photo_url})
