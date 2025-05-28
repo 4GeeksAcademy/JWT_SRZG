@@ -1,12 +1,12 @@
-import React from "react";
-
 const CatPhoto = ({ photoUrl }) => {
   return (
-    <img
-      src={photoUrl}
-      alt="Foto del gato"
-      className="w-full h-auto rounded shadow-md"
-    />
+    <div className="flex justify-center items-center">
+      <img
+        src={photoUrl}
+        alt="Foto del gato"
+        className="rounded-lg shadow-md max-w-full h-auto"
+      />
+    </div>
   );
 };
 
