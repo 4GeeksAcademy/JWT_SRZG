@@ -42,6 +42,7 @@ def register_user():
         phone=body["phone"],
         is_active=body["is_active"],
         rol=body["rol"],
+        profile_picture="",
     )
     # Password
     hashed_password = bcrypt.generate_password_hash(

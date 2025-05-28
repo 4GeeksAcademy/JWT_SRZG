@@ -15,6 +15,7 @@ export const RegisterForm = () => {
         is_active: true,
         rol: 1,
         password: '',
+        profile_picture: '',
     });
 
     const [errors, setErrors] = useState({});
@@ -78,6 +79,17 @@ export const RegisterForm = () => {
         }
     };
 
+    const fields = [
+        { name: 'name', label: 'Nombre' },
+        { name: 'lastname', label: 'Apellidos' },
+        { name: 'dni', label: 'DNI (Ej: 00000000A)' },
+        { name: 'nickname', label: 'Apodo' },
+        { name: 'direction', label: 'Dirección' },
+        { name: 'email', label: 'Email' },
+        { name: 'phone', label: 'Teléfono' },
+        { name: 'password', label: 'Contraseña' },
+    ];
+
     return (
         <div className="register-container d-flex justify-content-center">
             <div className="register-form col-4 p-8 mt-5 mb-5">
@@ -86,22 +98,22 @@ export const RegisterForm = () => {
                     <hr></hr>
                     <p>Te estás registrando en el sistema de distribución de gatos más adorable de la red, no te vas a arrepentir de esta gran decisión</p>
 
-                    {['name', 'lastname', 'DNI (Ej: 00000000A)', 'nickname', 'direction', 'email', 'phone', 'password'].map((field) => (
-                        <div key={field} className="mb-3">
-                            <label htmlFor={field} className="form-label">
-                                {field.charAt(0).toUpperCase() + field.slice(1)}
-                            </label>
+
+                    {fields.map(({ name, label }) => (
+                        <div key={name} className="mb-3">
+                            <label htmlFor={name} className="form-label">{label}</label>
                             <input
-                                type={field === 'password' ? 'password' : 'text'}
-                                className={`form-control ${errors[field] ? 'is-invalid' : ''}`}
-                                id={field}
-                                name={field}
-                                value={formData[field]}
+                                type={name === 'password' ? 'password' : 'text'}
+                                className={`form-control ${errors[name] ? 'is-invalid' : ''}`}
+                                id={name}
+                                name={name}
+                                value={formData[name]}
                                 onChange={handleChange}
                             />
-                            {errors[field] && <div className="invalid-feedback">{errors[field]}</div>}
+                            {errors[name] && <div className="invalid-feedback">{errors[name]}</div>}
                         </div>
                     ))}
+
 
                     <div className="d-flex justify-content-end">
                         <button type="submit" className="btn btn-primary">Registrar</button>
