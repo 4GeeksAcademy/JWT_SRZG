@@ -14,6 +14,8 @@ export const Profile = () => {
 
     const { store, dispatch } = useGlobalReducer();
     const { userData } = store;
+    const [dataPhoto, setDataPhoto] = useState(null)
+    console.log(dataPhoto)
 
 
     useEffect(() => {
@@ -38,7 +40,12 @@ export const Profile = () => {
                     const data = await response.json();
                     setUserName(data.user.name);
                     dispatch({ type: "set_user_data", payload: data.user })
+                    setDataPhoto(data.profilePicture)
+
+
                     console.log(data)
+
+
                 } else {
 
                     console.error("Error al obtener la información del usuario:", response.status, await response.text());
@@ -83,7 +90,15 @@ export const Profile = () => {
             {token ? (
                 <div>
                     <div className="rounded bg-body-secondary p-3 m-3">
-                        <h1>Hola, {userData.name}</h1>
+                        <div className="d-flex">
+                            <img
+                                src={dataPhoto}
+                                alt="User Profile"
+                                className="rounded-circle ms-3"
+                                style={{ width: '80px', height: '80px', objectFit: 'cover' }}
+                            />
+                            <h1 className="m-3">Hola, {userData.name}</h1>
+                        </div>
                     </div>
 
                     {activeSection === 'favorites' && (
@@ -113,3 +128,5 @@ export const Profile = () => {
         </div>
     );
 };
+
+

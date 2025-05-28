@@ -96,82 +96,86 @@ export const EditProfile = () => {
 
 
     return (
-        <div>
-            <h1 className="text-center">COMPONENTE EDITAR USUARIO</h1>
-            <form onSubmit={handleSubmit}>
-                <div>
-                    <label htmlFor="name" className="form-label">Name</label>
-                    <input
-                        type="text"
-                        className="form-control"
-                        id="name"
-                        name="name"
-                        value={name}
-                        onChange={handleChange}
-                    />
-                </div>
-                <div>
-                    <label htmlFor="lastname" className="form-label">Lastname</label>
-                    <input
-                        type="text"
-                        className="form-control"
-                        id="lastname"
-                        name="lastname"
-                        value={lastname}
-                        onChange={handleChange}
-                    />
-                </div>
-                <div>
-                    <label htmlFor="dni" className="form-label">DNI</label>
-                    <input
-                        type="text"
-                        className="form-control"
-                        id="dni"
-                        name="dni"
-                        value={dni}
-                        onChange={handleChange}
-                    />
-                </div>
-                <div>
-                    <label htmlFor="nickname" className="form-label">Nickname</label>
-                    <input
-                        type="text"
-                        className="form-control"
-                        id="nickmame"
-                        name="nickname"
-                        value={nickname}
-                        onChange={handleChange}
-                    />
-                </div>
-                <div>
-                    <label htmlFor="direction" className="form-label">Direction</label>
-                    <input
-                        type="text"
-                        className="form-control"
-                        id="direction"
-                        name="direction"
-                        value={direction}
-                        onChange={handleChange}
-                    />
-                </div>
-                <div>
-                    <label htmlFor="phone" className="form-label">Phone</label>
-                    <input
-                        type="text"
-                        className="form-control"
-                        id="phone"
-                        name="phone"
-                        value={phone}
-                        onChange={handleChange}
-                    />
-                </div>
-                <div className="d-grid gap-2">
-                    <button className="btn btn-primary m-5" type="submit">
-                        Save
-                    </button>
-                </div>
-            </form>
+        <div className="register-container d-flex justify-content-center">
+            <div className="register-form col-8 p-8 mt-5 mb-5">
 
-        </div>
+                <form onSubmit={handleSubmit} className="p-4 bg-light rounded shadow">
+                    <h2 className="text-center">EDITAR USUARIO</h2>
+                    <hr />
+                    <div>
+                        <label htmlFor="name" className="form-label">Name</label>
+                        <input
+                            type="text"
+                            className="form-control"
+                            id="name"
+                            name="name"
+                            value={name}
+                            onChange={handleChange}
+                        />
+                    </div>
+                    <div>
+                        <label htmlFor="lastname" className="form-label">Lastname</label>
+                        <input
+                            type="text"
+                            className="form-control"
+                            id="lastname"
+                            name="lastname"
+                            value={lastname}
+                            onChange={handleChange}
+                        />
+                    </div>
+                    <div>
+                        <label htmlFor="dni" className="form-label">DNI</label>
+                        <input
+                            type="text"
+                            className="form-control"
+                            id="dni"
+                            name="dni"
+                            value={dni}
+                            onChange={handleChange}
+                        />
+                    </div>
+                    <div>
+                        <label htmlFor="nickname" className="form-label">Nickname</label>
+                        <input
+                            type="text"
+                            className="form-control"
+                            id="nickmame"
+                            name="nickname"
+                            value={nickname}
+                            onChange={handleChange}
+                        />
+                    </div>
+                    <div>
+                        <label htmlFor="direction" className="form-label">Direction</label>
+                        <input
+                            type="text"
+                            className="form-control"
+                            id="direction"
+                            name="direction"
+                            value={direction}
+                            onChange={handleChange}
+                        />
+                    </div>
+                    <div>
+                        <label htmlFor="phone" className="form-label">Phone</label>
+                        <input
+                            type="text"
+                            className="form-control"
+                            id="phone"
+                            name="phone"
+                            value={phone}
+                            onChange={handleChange}
+                        />
+                    </div>
+                    <div className="d-grid gap-2">
+                        <button className="btn btn-primary m-5" type="submit">
+                            Save
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+        </div >
     )
 }

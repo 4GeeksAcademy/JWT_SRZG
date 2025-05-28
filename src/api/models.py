@@ -21,6 +21,7 @@ class User(db.Model):
     is_active: Mapped[bool] = mapped_column(
         Boolean(), nullable=False, default=True)
     rol: Mapped[str] = mapped_column(String(40), nullable=False)
+    profile_picture: Mapped[str] = mapped_column(String(500), nullable=True)
 
     sent_reviews = relationship(
         'UserReviewsDetails', foreign_keys='UserReviewsDetails.sender_user_id', backref='sender', lazy=True)

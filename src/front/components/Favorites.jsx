@@ -1,7 +1,16 @@
 import React, { useState, useEffect } from "react";
+import useGlobalReducer from "../hooks/useGlobalReducer";
+import { Link } from "react-router-dom";
 
 export const Favorites = () => {
+    const { store, dispatch } = useGlobalReducer
+    const { userData } = store;
+    const token = localStorage.getItem('token');
+
     const [favoriteCats, setFavoriteCats] = useState([]);
+
+
+
 
     useEffect(() => {
         const fetchLoadingFavorites = async () => {
