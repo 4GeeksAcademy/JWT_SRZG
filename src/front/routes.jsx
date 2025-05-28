@@ -4,7 +4,7 @@ import {
   Route,
 } from "react-router-dom";
 import { Layout } from "./pages/Layout";
-import { Home } from "./pages/Home";
+import { Home } from "./pages/Home";  // Mantén solo esta importación
 import { Single } from "./pages/Single";
 import { RegisterForm } from "./pages/RegisterForm";
 import { LoginForm } from "./components/LoginForm";
@@ -12,6 +12,7 @@ import { PrivateRoute } from './components/PrivateRoute';
 import { Profile } from './pages/Profile';
 import CatProfilePage from "./pages/CatProfilePage";
 import { EditProfile } from "./components/EditProfile";
+
 
 
 export const router = createBrowserRouter(
@@ -26,13 +27,9 @@ export const router = createBrowserRouter(
         <PrivateRoute>
           <Profile />
         </PrivateRoute>
-        
       } />
-
       <Route path="/cat/:catId" element={<CatProfilePage />} />
-
     </Route>
-    
   ),
   {
     future: {

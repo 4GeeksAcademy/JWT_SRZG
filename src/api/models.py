@@ -125,14 +125,16 @@ class CatUser(db.Model):
         return {
             "id": self.id,
             "name": self.name,
+            "breed": self.breed,
             "age": self.age,
+            "weight": self.weight,
+            "description": self.description,
             "color": self.color,
             "sex": self.sex,
             "is_active": self.is_active,
-            "photos": [photo.serialize() for photo in self.photos],
-            "user_id": self.user_id
+            "user_id": self.user_id,
+            "photos": [photo.serialize() for photo in self.photos]
         }
-
 
 class CatPhoto(db.Model):
     __tablename__ = "cat_photo"
