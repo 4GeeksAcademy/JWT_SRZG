@@ -86,7 +86,7 @@ export const RegisterForm = () => {
                     <hr></hr>
                     <p>Te estás registrando en el sistema de distribución de gatos más adorable de la red, no te vas a arrepentir de esta gran decisión</p>
 
-                    {['name', 'lastname', 'dni', 'nickname', 'direction', 'email', 'phone', 'password'].map((field) => (
+                    {['name', 'lastname', 'DNI (Ej: 00000000A)', 'nickname', 'direction', 'email', 'phone', 'password'].map((field) => (
                         <div key={field} className="mb-3">
                             <label htmlFor={field} className="form-label">
                                 {field.charAt(0).toUpperCase() + field.slice(1)}
