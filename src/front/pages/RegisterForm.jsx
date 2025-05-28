@@ -86,7 +86,7 @@ export const RegisterForm = () => {
                     <hr></hr>
                     <p>Te estás registrando en el sistema de distribución de gatos más adorable de la red, no te vas a arrepentir de esta gran decisión</p>
 
-                    {['name', 'lastname', 'dni', 'nickname', 'direction', 'email', 'phone', 'password'].map((field) => (
+                    {['name', 'lastname', 'DNI (Ej: 00000000A)', 'nickname', 'direction', 'email', 'phone', 'password'].map((field) => (
                         <div key={field} className="mb-3">
                             <label htmlFor={field} className="form-label">
                                 {field.charAt(0).toUpperCase() + field.slice(1)}
@@ -103,21 +103,9 @@ export const RegisterForm = () => {
                         </div>
                     ))}
 
-                    <div className="mb-3 form-check">
-                        <input
-                            type="checkbox"
-                            className="form-check-input"
-                            id="is_active"
-                            name="is_active"
-                            checked={formData.is_active}
-                            onChange={handleChange}
-                        />
-                        <label className="form-check-label" htmlFor="is_active">
-                            Activo
-                        </label>
+                    <div className="d-flex justify-content-end">
+                        <button type="submit" className="btn btn-primary">Registrar</button>
                     </div>
-
-                    <button type="submit" className="btn btn-primary">Registrar</button>
 
                     {submitStatus && (
                         <div className="mt-3 alert alert-info">{submitStatus}</div>
