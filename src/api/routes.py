@@ -386,7 +386,7 @@ def user_profile_picture():
     """ photo_url = cloudinary_url(upload_result['public_id'], format="jpg", crop="fill", width=100,
                                height=100) """
     # actulizar el usuario con la direccion del recurso en cloudinary
-    user.profile_picture = upload_result["public_id"]
+    user.profile_picture = upload_result["secure_url"]
     db.session.add(user)
     db.session.commit()
     photo_url = cloudinary_url(user.profile_picture)

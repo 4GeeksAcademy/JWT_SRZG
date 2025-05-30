@@ -8,13 +8,13 @@ import { useLocation } from "react-router-dom";
 
 export const Profile = () => {
     const [userName, setUserName] = useState("usuario")
+    const [dataPhoto, setDataPhoto] = useState(null)
     const [activeSection, setActiveSection] = useState('profile');
 
     const token = localStorage.getItem('token');
 
     const { store, dispatch } = useGlobalReducer();
-    const { userData } = store;
-    const [dataPhoto, setDataPhoto] = useState(null)
+    const { userData, profilePhoto } = store;
     console.log(dataPhoto)
 
 
@@ -38,13 +38,9 @@ export const Profile = () => {
 
                 if (response.ok) {
                     const data = await response.json();
-                    setUserName(data.user.name);
                     dispatch({ type: "set_user_data", payload: data.user })
+                    setUserName(data.user.name);
                     setDataPhoto(data.profilePicture)
-
-
-                    console.log(data)
-
 
                 } else {
 
@@ -92,7 +88,7 @@ export const Profile = () => {
                     <div className="rounded bg-body-secondary p-3 m-3">
                         <div className="d-flex">
                             <img
-                                src={dataPhoto}
+                                src={profilePhoto.profilePicture[0]}
                                 alt="User Profile"
                                 className="rounded-circle ms-3"
                                 style={{ width: '80px', height: '80px', objectFit: 'cover' }}
