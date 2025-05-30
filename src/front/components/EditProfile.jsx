@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react";
 import useGlobalReducer from "../hooks/useGlobalReducer";
 import { useNavigate } from "react-router-dom";
+
+
 export const EditProfile = () => {
 
     const { store, dispatch } = useGlobalReducer();
@@ -13,8 +15,8 @@ export const EditProfile = () => {
     const [dni, setDni] = useState("");
     const [phone, setPhone] = useState("");
     const [direction, setDirection] = useState("");
-    const navigate = useNavigate();
 
+    const navigate = useNavigate();
     const token = localStorage.getItem('token');
 
     useEffect(() => {
@@ -94,9 +96,24 @@ export const EditProfile = () => {
         }
     }
 
+    const handleChangeProfilePicture = async (e) => {
+        e.preventDefault()
+        const formData = new FormData(e.target) /* elemento del DOM que desencadena el evento */
+        const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/profilepicture`, {
+            method: 'PUT',
+            headers: {
+                'Authorization': `Bearer ${token}`
+            },
+            body: formData
+        });
+        const photoProfile = await response.json()
+        dispatch({ type: "set_user_photo", payload: photoProfile });
+        navigate('/private?section=my-data')
 
+
+    }
     return (
-        <div className="register-container d-flex justify-content-center">
+        <div className="register-container d-flex flex-column justify-content-center align-items-center ">
             <div className="register-form col-8 p-8 mt-5 mb-5">
 
                 <form onSubmit={handleSubmit} className="p-4 bg-light rounded shadow">
@@ -172,6 +189,16 @@ export const EditProfile = () => {
                         <button className="btn btn-primary m-5" type="submit">
                             Save
                         </button>
+                    </div>
+                </form>
+            </div>
+            <div className="register-form col-8 p-8">
+                <form className="p-4 bg-light rounded shadow" onSubmit={handleChangeProfilePicture}>
+                    <h2 className="text-center">EDITAR FOTO PERFIL</h2>
+                    <hr />
+                    <input type="file" name="PERFIL FEDE" className="form-control" />
+                    <div className="d-grid">
+                        <button className="btn btn-primary m-5" type="submit">GUARDAR</button>
                     </div>
                 </form>
             </div>

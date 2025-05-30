@@ -376,7 +376,7 @@ def user_profile_picture():
         return jsonify({"msg": "No se encontro el usuario"}), 403
     # validamos que la peticion contenga la imagen
     # esta vez la peticion no sera json sino form data
-    photo = request.files["photo"]
+    photo = request.files["PERFIL FEDE"]
     if photo is None:
         return jsonify({"msg": "No se envio una imagen"}), 400
     # se carga la imagen a cloudinary

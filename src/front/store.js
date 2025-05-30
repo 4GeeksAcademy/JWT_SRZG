@@ -14,6 +14,7 @@ export const initialStore = () => {
       },
     ],
     userData: [],
+    profilePhoto: [],
   };
 };
 
@@ -39,6 +40,11 @@ export default function storeReducer(store, action = {}) {
       return {
         ...store,
         userData: action.payload,
+      };
+    case "set_user_photo":
+      return {
+        ...store,
+        profilePhoto: action.payload,
       };
     default:
       throw Error("Unknown action.");
