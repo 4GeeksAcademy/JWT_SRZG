@@ -13,9 +13,7 @@ from api.commands import setup_commands
 from flask_jwt_extended import JWTManager
 from datetime import timedelta
 from flask_bcrypt import Bcrypt
-
-
-
+from flask_cors import CORS
 
 # from models import Person
 
@@ -23,13 +21,13 @@ ENV = "development" if os.getenv("FLASK_DEBUG") == "1" else "production"
 static_file_dir = os.path.join(os.path.dirname(
     os.path.realpath(__file__)), '../public/')
 app = Flask(__name__)
+CORS(app, resources={r"/*": {"origins": "http://localhost:3000"}})
 app.url_map.strict_slashes = False
 jwt = JWTManager(app)
-app.config["JWT_ACCES_TOKEN_EXPIRES"]=timedelta(hours=2)
-jwt = JWTManager(app)
-bcrypt =Bcrypt(app)
+bcrypt = Bcrypt(app)
 # JWT Configuration
 app.config["JWT_SECRET_KEY"] = os.getenv("JWT_SECRET")
+app.config["JWT_ACCES_TOKEN_EXPIRES"] = timedelta(hours=2)
 
 
 @jwt.token_in_blocklist_loader

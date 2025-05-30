@@ -1,0 +1,23 @@
+html,
+body,
+#root {
+  height: 100%;
+  margin: 0;
+}
+
+.michis-logo {
+  width: 210px;
+  height: auto;
+  image-rendering: auto;
+}
+
+.footer {
+  background: rgb(36, 36, 36);
+  border-top: 6px rgb(0, 191, 255) solid;
+  height: auto;
+  color: white;
+}
+
+.reserved-rights {
+  font-size: 0.6em;
+}
