@@ -10,6 +10,8 @@ const CatProfilePage = () => {
   const [cat, setCat] = useState(null);
   const [ownerInfo, setOwnerInfo] = useState(null);
   const [showModal, setShowModal] = useState(false);
+  const [currentUserId, setCurrentUserId] = useState(null);
+
 
   useEffect(() => {
     const fetchCat = async () => {
@@ -26,6 +28,27 @@ const CatProfilePage = () => {
 
     fetchCat();
   }, [catId]);
+
+  useEffect(() => {
+    const fetchUserId = async () => {
+      const token = localStorage.getItem("token");
+      if (!token) return;
+
+      try {
+        const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/userinfo`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        const data = await res.json();
+        setCurrentUserId(data.user.id);
+      } catch (err) {
+        console.error("Error al obtener ID del usuario:", err);
+      }
+    };
+
+    fetchUserId();
+  }, []);
 
   const handleContact = async () => {
     const token = localStorage.getItem("token");
@@ -89,9 +112,11 @@ const CatProfilePage = () => {
 
           {/* Botones */}
           <div className="mt-3 d-flex gap-2">
-            <button className="btn btn-primary" onClick={handleContact}>
-              Contactar
-            </button>
+            {currentUserId !== cat.user_id && (
+              <button className="btn btn-primary" onClick={handleContact}>
+                Contactar
+              </button>
+            )}
 
             <button className="btn btn-outline-danger">♡</button>
             <button className="btn btn-outline-warning">★</button>
@@ -100,7 +125,8 @@ const CatProfilePage = () => {
       </div>
       <ContactModal
         show={showModal}
-        owner={ownerInfo}
+        person={ownerInfo}
+        title="Datos del dueño"
         onClose={() => setShowModal(false)}
       />
     </div>

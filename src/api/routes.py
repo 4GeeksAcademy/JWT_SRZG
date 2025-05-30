@@ -185,6 +185,7 @@ def contact_cat_owner(cat_id):
             "email": owner.email,
             "phone": owner.phone,
             "nickname": owner.nickname,
+            "profile_picture": owner.profile_picture,
         }
     }), 200
 
