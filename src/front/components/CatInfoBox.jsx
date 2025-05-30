@@ -1,3 +1,4 @@
+
 import React from "react";
 
 const CatInfoBox = ({ name, breed, weight, age, extra, color, sex }) => {
@@ -17,4 +18,3 @@ const CatInfoBox = ({ name, breed, weight, age, extra, color, sex }) => {
 };
 
 export default CatInfoBox;
-

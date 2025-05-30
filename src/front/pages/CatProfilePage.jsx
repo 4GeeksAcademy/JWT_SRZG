@@ -1,42 +1,67 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import CatCard from "../components/CatCard"; // Asegúrate de que este componente esté bien configurado
+import CatInfoBox from "../components/CatInfoBox";
+import CatPhoto from "../components/CatPhoto";
 
 const CatProfilePage = () => {
-  const { catId } = useParams(); // Obtener el id del gato desde la URL
-  const [catData, setCatData] = useState(null); // Estado para almacenar la información del gato
-  const [loading, setLoading] = useState(true); // Estado de carga
+  const { catId } = useParams();
+  const [cat, setCat] = useState(null);
 
-  // useEffect para hacer la solicitud fetch y obtener los datos completos del gato
   useEffect(() => {
     const fetchCat = async () => {
       try {
-        const response = await fetch(`https://upgraded-parakeet-jjqppx69xrpx254pg-3001.app.github.dev/api/cats/${catId}`);
-        if (!response.ok) {
-          throw new Error("Error al obtener los datos del gato");
-        }
+        const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/cats/${catId}`);
+        if (!response.ok) throw new Error("Error al obtener el gato");
 
         const data = await response.json();
-        setCatData(data.cat); // Almacena los datos del gato en el estado
+        setCat(data.cat);
       } catch (error) {
-        console.error("Error fetching cat data:", error);
-      } finally {
-        setLoading(false); // Cambia el estado de 'loading' a false cuando la solicitud termine
+        console.error("Error al cargar el gato:", error);
       }
     };
 
-    fetchCat(); // Realiza la solicitud cuando se monta el componente
+    fetchCat();
   }, [catId]);
 
-  if (loading) {
-    return <div>Cargando...</div>; // Muestra "Cargando..." mientras se obtienen los datos
-  }
+  if (!cat) return <div className="text-center py-5">Cargando michi...</div>;
 
   return (
     <div className="container py-4">
-      <h2 className="text-center fs-2 fw-bold">{catData.name}</h2>
-      {/* Usamos el componente CatCard para mostrar el perfil completo */}
-      <CatCard cat={catData} />
+      <div className="row">
+        {/* Columna de fotos */}
+        <div className="col-12 col-md-3 d-flex flex-column gap-3">
+          {cat.photos.length > 0 ? (
+            cat.photos.map((photo, index) => (
+              <CatPhoto key={index} photoUrl={photo.url} />
+            ))
+          ) : (
+            <CatPhoto photoUrl="https://via.placeholder.com/300x200?text=Sin+foto" />
+          )}
+        </div>
+
+        {/* Columna de info */}
+        <div className="col-12 col-md-9">
+          <h2 className="text-uppercase fw-bold mb-3">{cat.name}</h2>
+          <div className="border border-primary p-3 bg-light">
+            <CatInfoBox
+              name={cat.name}
+              breed={cat.breed}
+              weight={cat.weight}
+              age={cat.age}
+              color={cat.color}
+              sex={cat.sex}
+              extra={cat.description}
+            />
+          </div>
+
+          {/* Botones */}
+          <div className="mt-3 d-flex gap-2">
+            <button className="btn btn-secondary">Contactar</button>
+            <button className="btn btn-outline-danger">♡</button>
+            <button className="btn btn-outline-warning">★</button>
+          </div>
+        </div>
+      </div>
     </div>
   );
 };
