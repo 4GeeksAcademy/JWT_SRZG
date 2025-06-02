@@ -99,6 +99,9 @@ export const EditProfile = () => {
     const handleChangeProfilePicture = async (e) => {
         e.preventDefault()
         const formData = new FormData(e.target) /* elemento del DOM que desencadena el evento */
+
+
+
         const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/profilepicture`, {
             method: 'PUT',
             headers: {
@@ -106,12 +109,24 @@ export const EditProfile = () => {
             },
             body: formData
         });
-        const photoProfile = await response.json()
-        dispatch({ type: "set_user_photo", payload: photoProfile });
-        navigate('/private?section=my-data')
 
+        if (response.ok) {
+            const responseData = await response.json()
+            const newProfilePictureUrl = responseData.profile_picture
+            console.log(newProfilePictureUrl)
+            const updatedUserData = {
+                ...userData,
+                profile_picture: newProfilePictureUrl
+            }
+            dispatch({ type: "set_user_data", payload: updatedUserData });
+            navigate('/private?section=my-data')
+            console.log("Foto de perfil actualizada y store global actualizado:", updatedUserData);
+            return;
 
+        }
     }
+
+
     return (
         <div className="register-container d-flex flex-column justify-content-center align-items-center ">
             <div className="register-form col-8 p-8 mt-5 mb-5">

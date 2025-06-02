@@ -40,7 +40,7 @@ export const Profile = () => {
                     const data = await response.json();
                     dispatch({ type: "set_user_data", payload: data.user })
                     setUserName(data.user.name);
-                    setDataPhoto(data.profilePicture)
+                    setDataPhoto(data.user.profile_picture);
 
                 } else {
 
@@ -57,9 +57,9 @@ export const Profile = () => {
         fetchUserInfo();
     }, [token]);
 
-    /* const handleShowFavorites = () => {
+    const handleShowFavorites = () => {
         setActiveSection('favorites');
-    }; */
+    };
     /* const handleShowRatings = () => {
         setActiveSection('ratings');
     }; */
@@ -88,7 +88,7 @@ export const Profile = () => {
                     <div className="rounded bg-body-secondary p-3 m-3">
                         <div className="d-flex">
                             <img
-                                src={profilePhoto.profilePicture[0]}
+                                src={userData.profile_picture}
                                 alt="User Profile"
                                 className="rounded-circle ms-3"
                                 style={{ width: '80px', height: '80px', objectFit: 'cover' }}

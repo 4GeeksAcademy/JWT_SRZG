@@ -40,7 +40,8 @@ class User(db.Model):
             "direction": self.direction,
             "email": self.email,
             "phone": self.phone,
-            "rol": self.rol
+            "rol": self.rol,
+            "profile_picture": self.profile_picture
         }
 
  # User reviews model group
@@ -135,6 +136,7 @@ class CatUser(db.Model):
             "user_id": self.user_id,
             "photos": [photo.serialize() for photo in self.photos]
         }
+
 
 class CatPhoto(db.Model):
     __tablename__ = "cat_photo"
