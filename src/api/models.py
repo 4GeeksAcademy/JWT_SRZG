@@ -41,7 +41,8 @@ class User(db.Model):
             "direction": self.direction,
             "email": self.email,
             "phone": self.phone,
-            "rol": self.rol
+            "rol": self.rol,
+            "profile_picture": self.profile_picture
         }
 
  # User reviews model group
