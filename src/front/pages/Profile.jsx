@@ -5,6 +5,8 @@ import { MyData } from "../components/MyData";
 import useGlobalReducer from "../hooks/useGlobalReducer";
 import { EditProfile } from "../components/EditProfile";
 import { useLocation } from "react-router-dom";
+import MyCatCard from "../components/MyCatCard";
+
 
 export const Profile = () => {
     const [userName, setUserName] = useState("usuario")
@@ -15,8 +17,9 @@ export const Profile = () => {
 
     const { store, dispatch } = useGlobalReducer();
     const { userData } = store;
-    console.log(userData)
-
+    const [dataPhoto, setDataPhoto] = useState(null)
+    const [myCats, setMyCats] = useState([]);
+    console.log(dataPhoto)
 
 
     useEffect(() => {
@@ -82,23 +85,34 @@ export const Profile = () => {
         }
     }, [location]);
 
+    useEffect(() => {
+        const fetchMyCats = async () => {
+            try {
+                const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/cats-contacted`, {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                });
+
+                const data = await response.json();
+                console.log("DATA RECIBIDA:", data); // <--- AÑADE ESTO
+                setMyCats(data);
+            } catch (err) {
+                console.error("Error al obtener los gatos del usuario:", err);
+            }
+        };
+
+        fetchMyCats();
+    }, [token]);
+
     return (
         <div className="container py-5">
             {token ? (
                 <div>
-                    <div className="rounded bg-body-secondary p-3 m-3">
-                        <div className="d-flex">
-                            <img
-                                src={userData.profile_picture}
-                                alt="User Profile"
-                                className="rounded-circle ms-3"
-                                style={{ width: '80px', height: '80px', objectFit: 'cover' }}
-                            />
-                            <h1 className="m-3">Hola, {userData.name}</h1>
-                        </div>
-                    </div>
+
 
                     {activeSection === 'favorites' && (
+
                         <div className="mt-5">
                             <Favorites />
                         </div>
@@ -114,16 +128,60 @@ export const Profile = () => {
                         </div>
                     )}
                     {activeSection === 'edit-profile' && (
-                        <div className="mt-5">
+                        <div className="mt-5 ">
                             <EditProfile />
                         </div>
+                    )}
+                    {(activeSection === 'profile') && (
+                        <>
+
+                            <div className="p-3 m-3 ">
+                                <div className="d-flex justify-content-center">
+                                    <img
+                                        src={dataPhoto}
+                                        alt="User Profile"
+                                        className="rounded-circle ms-3"
+                                        style={{ width: '80px', height: '80px', objectFit: 'cover' }}
+                                    />
+                                    <h1 className="m-3">Hola, {userData.name}</h1>
+
+                                </div>
+                                <hr></hr>
+                            </div>
+                            {myCats.length > 0 && <h2 className="text-center p-3">{myCats.length} Michis Publicados</h2>}
+                            <div className="row">
+                                {myCats.map(cat => (
+                                    <div key={cat.cat_id} className="col-12 col-sm-6 col-md-4 col-lg-3 mb-4">
+                                        <MyCatCard cat={cat} />
+                                    </div>
+                                ))}
+                            </div>
+                        </>
+                    )}
+
+                    {(activeSection === 'my-cats') && (
+                        <><h1 className="m-3 text-center">{myCats.length} Michis Publicados</h1>
+                            {myCats.length > 0}
+                            <div className="row">
+                                {myCats.map(cat => (
+                                    <div key={cat.cat_id} className="col-12 col-sm-6 col-md-4 col-lg-3 mb-4">
+                                        <MyCatCard cat={cat} />
+                                    </div>
+                                ))}
+                            </div>
+                        </>
                     )}
                 </div>
             ) : (
                 <p className="text-danger">No tienes acceso. Inicia sesión primero.</p>
-            )}
+            )
+
+            }
+
         </div>
+
     );
+
 };
 
 
