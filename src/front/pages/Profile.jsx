@@ -17,7 +17,6 @@ export const Profile = () => {
 
     const { store, dispatch } = useGlobalReducer();
     const { userData } = store;
-    const [dataPhoto, setDataPhoto] = useState(null)
     const [myCats, setMyCats] = useState([]);
     console.log(dataPhoto)
 
@@ -44,7 +43,7 @@ export const Profile = () => {
                     const data = await response.json();
                     dispatch({ type: "set_user_data", payload: data.user })
                     setUserName(data.user.name);
-                    setDataPhoto(data.user.profile_picture);
+
 
                 } else {
 
@@ -138,7 +137,7 @@ export const Profile = () => {
                             <div className="p-3 m-3 ">
                                 <div className="d-flex justify-content-center">
                                     <img
-                                        src={dataPhoto}
+                                        src={userData.profile_picture}
                                         alt="User Profile"
                                         className="rounded-circle ms-3"
                                         style={{ width: '80px', height: '80px', objectFit: 'cover' }}
