@@ -1,9 +1,11 @@
 import React, { useState } from "react";
 import ContactModal from "./ContactModal";
 
-const MyCatCard = ({ cat }) => {
+const MyCatCard = ({ cat, isOwner, onAdoptSelect }) => {
     const [selectedContact, setSelectedContact] = useState(null);
     const [showModal, setShowModal] = useState(false);
+
+    const alreadyHasAdoptant = cat.contacts.some(contact => contact.is_selected);
 
     const handleOpenModal = (contact) => {
         setSelectedContact(contact);
@@ -15,9 +17,16 @@ const MyCatCard = ({ cat }) => {
         setShowModal(false);
     };
 
+    const handleMarkAsAdoptant = (contactorId) => {
+        if (onAdoptSelect) {
+            onAdoptSelect(cat.cat_id, contactorId);
+        }
+    };
+
     const recentContacts = cat.contacts
         .slice()
         .sort((a, b) => new Date(b.contacted_at) - new Date(a.contacted_at))
+        .slice(0, 3);
 
     return (
         <div className="card h-100">
@@ -42,12 +51,22 @@ const MyCatCard = ({ cat }) => {
                                             <span className="badge bg-success ms-2">Adoptante</span>
                                         )}
                                     </div>
-                                    <button
-                                        className="btn btn-sm btn-outline-primary"
-                                        onClick={() => handleOpenModal(contact)}
-                                    >
-                                        Ver datos
-                                    </button>
+                                    <div className="d-flex gap-2">
+                                        <button
+                                            className="btn btn-sm btn-outline-primary"
+                                            onClick={() => handleOpenModal(contact)}
+                                        >
+                                            Ver datos
+                                        </button>
+                                        {isOwner && !alreadyHasAdoptant && !contact.is_selected && (
+                                            <button
+                                                className="btn btn-sm btn-success"
+                                                onClick={() => handleMarkAsAdoptant(contact.contactor_id)}
+                                            >
+                                                Marcar como adoptante
+                                            </button>
+                                        )}
+                                    </div>
                                 </div>
                             </li>
                         ))}
@@ -57,7 +76,7 @@ const MyCatCard = ({ cat }) => {
                 {cat.contacts.length > 3 && (
                     <div className="text-end mt-2">
                         <small className="text-muted">
-                            +{cat.contacts.length - 3} contactos más en el perfil de tu Michi
+                            +{cat.contacts.length - 3} contactos más en el perfil del michi
                         </small>
                     </div>
                 )}

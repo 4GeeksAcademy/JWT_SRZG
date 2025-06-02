@@ -11,6 +11,7 @@ import { PrivateRoute } from './components/PrivateRoute';
 import { Profile } from './pages/Profile';
 import CatProfilePage from "./pages/CatProfilePage";
 import { CatGallery } from "./components/CatGallery";
+import ReviewForm from "./components/ReviewForm";
 
 export const router = createBrowserRouter(
   createRoutesFromElements(
@@ -25,6 +26,7 @@ export const router = createBrowserRouter(
       } />
       <Route path="/" element={<CatGallery />} />
       <Route path="/cat/:catId" element={<CatProfilePage />} />  {/* Ruta para el perfil del gato */}
+      <Route path="/review" element={<ReviewForm />} />
     </Route>
   ),
   {
