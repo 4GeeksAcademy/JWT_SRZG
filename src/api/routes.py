@@ -4,7 +4,7 @@ This module takes care of starting the API Server, Loading the DB and Adding the
 
 
 from flask import Flask, request, jsonify, url_for, Blueprint
-from api.models import db, User, Favorites, TokenBlockedList, UserReviews, UserReviewsDetails, CatUser, CatPhoto
+from api.models import db, User, Favorites, TokenBlockedList, UserReviews, UserReviewsDetails, CatUser, CatPhoto, CatContactRequest
 from api.utils import generate_sitemap, APIException
 from flask_cors import CORS
 from flask_bcrypt import Bcrypt
@@ -148,6 +148,46 @@ def add_review(target_user_id, michi_id):
     db.session.commit()
 
     return jsonify(new_review_relationship.serialize()), 201
+
+
+@api.route("/cats/<int:cat_id>/contact", methods=["POST"])
+@jwt_required()
+def contact_cat_owner(cat_id):
+    user_id = get_jwt_identity()
+    cat = CatUser.query.get(cat_id)
+
+    if not cat:
+        return jsonify({"error": "Michi no encontrado"}), 404
+
+    if user_id == cat.user_id:
+        return jsonify({"error": "No puedes contactarte a ti mismo"}), 400
+
+    # Check for existing contact
+    contact = CatContactRequest.query.filter_by(
+        cat_id=cat_id, contactor_id=user_id).first()
+    if not contact:
+        contact = CatContactRequest(
+            cat_id=cat_id,
+            contactor_id=user_id,
+            owner_id=cat.user_id
+        )
+        db.session.add(contact)
+        db.session.commit()
+
+    # Obtener datos del dueño del gato
+    owner = User.query.get(cat.user_id)
+
+    return jsonify({
+        "msg": "Contacto registrado correctamente",
+        "owner": {
+            "name": owner.name,
+            "lastname": owner.lastname,
+            "email": owner.email,
+            "phone": owner.phone,
+            "nickname": owner.nickname,
+            "profile_picture": owner.profile_picture,
+        }
+    }), 200
 
 # User Routes
 
@@ -392,3 +432,34 @@ def user_profile_picture():
     photo_url = cloudinary_url(user.profile_picture)
     # se respponde con un mensaje y la direccion de la foto
     return jsonify({"userId": user_id, "msg": "foto actualizada", "profilePicture": photo_url})
+
+
+@api.route("/cats-contacted", methods=["GET"])
+@jwt_required()
+def my_cats_with_contacts():
+    user_id = get_jwt_identity()
+
+    my_cats = CatUser.query.filter_by(user_id=user_id).all()
+    result = []
+
+    for cat in my_cats:
+        contacts = CatContactRequest.query.filter_by(cat_id=cat.id).all()
+        contact_list = []
+        for contact in contacts:
+            contactor = User.query.get(contact.contactor_id)
+            contact_list.append({
+                "contactor_id": contact.contactor_id,
+                "nickname": contactor.nickname,
+                "email": contactor.email,
+                "phone": contactor.phone,
+                "contacted_at": contact.contacted_at.isoformat(),
+                "is_selected": contact.is_selected
+            })
+
+        result.append({
+            "cat_id": cat.id,
+            "cat_name": cat.name,
+            "contacts": contact_list
+        })
+
+    return jsonify(result), 200

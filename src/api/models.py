@@ -1,5 +1,6 @@
 from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy import String, Integer, Float, Boolean, Text, ForeignKey, Enum
+from sqlalchemy import String, Integer, Float, Boolean, Text, ForeignKey, Enum, DateTime
+from datetime import datetime
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 import enum
 
@@ -136,6 +137,7 @@ class CatUser(db.Model):
             "photos": [photo.serialize() for photo in self.photos]
         }
 
+
 class CatPhoto(db.Model):
     __tablename__ = "cat_photo"
 
@@ -156,6 +158,32 @@ class CatPhoto(db.Model):
             "foto": self.foto,
             "cat_id": self.cat_id,
             "user_id": self.user_id
+        }
+
+
+class CatContactRequest(db.Model):
+    __tablename__ = 'cat_contact_request'
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    cat_id: Mapped[int] = mapped_column(
+        ForeignKey("cat_user.id"), nullable=False)
+    contactor_id: Mapped[int] = mapped_column(
+        ForeignKey("user.id"), nullable=False)
+    owner_id: Mapped[int] = mapped_column(
+        ForeignKey("user.id"), nullable=False)
+    contacted_at = db.Column(db.DateTime, default=datetime.utcnow)
+    is_selected = db.Column(db.Boolean, default=False)
+
+    __table_args__ = (db.UniqueConstraint(
+        'cat_id', 'contactor_id', name='unique_contact_per_cat'),
+    )
+
+    def serialize(self):
+        return {
+            "id": self.id,
+            "cat_id": self.cat_id,
+            "contactor_id": self.contactor_id,
+            "owner_id": self.owner_id
         }
 
 

@@ -117,7 +117,7 @@ export const EditProfile = () => {
             <div className="register-form col-8 p-8 mt-5 mb-5">
 
                 <form onSubmit={handleSubmit} className="p-4 bg-light rounded shadow">
-                    <h2 className="text-center">EDITAR USUARIO</h2>
+                    <h2 className="text-center">Datos de Usuario</h2>
                     <hr />
                     <div>
                         <label htmlFor="name" className="form-label">Name</label>
@@ -185,20 +185,20 @@ export const EditProfile = () => {
                             onChange={handleChange}
                         />
                     </div>
-                    <div className="d-grid gap-2">
+                    <div className="d-grid gap-2 justify-content-end">
                         <button className="btn btn-primary m-5" type="submit">
-                            Save
+                            Guardar
                         </button>
                     </div>
                 </form>
             </div>
             <div className="register-form col-8 p-8">
                 <form className="p-4 bg-light rounded shadow" onSubmit={handleChangeProfilePicture}>
-                    <h2 className="text-center">EDITAR FOTO PERFIL</h2>
+                    <h2 className="text-center">Foto de Perfil</h2>
                     <hr />
                     <input type="file" name="PERFIL FEDE" className="form-control" />
-                    <div className="d-grid">
-                        <button className="btn btn-primary m-5" type="submit">GUARDAR</button>
+                    <div className="d-grid justify-content-end">
+                        <button className="btn btn-primary m-5" type="submit">Guardar</button>
                     </div>
                 </form>
             </div>
