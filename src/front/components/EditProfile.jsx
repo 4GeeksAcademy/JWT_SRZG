@@ -87,7 +87,8 @@ export const EditProfile = () => {
                 const data = await response.json();
                 dispatch({ type: "set_user_data", payload: data });
                 console.log("Perfil actualizado con éxito:", data);
-                navigate('/private?section=my-data')
+                navigate('/private')
+
             } else {
                 console.error("Error al actualizar el perfil:", response.status, await response.text());
             }

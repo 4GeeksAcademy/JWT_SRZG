@@ -14,8 +14,9 @@ export const Profile = () => {
     const token = localStorage.getItem('token');
 
     const { store, dispatch } = useGlobalReducer();
-    const { userData, profilePhoto } = store;
-    console.log(dataPhoto)
+    const { userData } = store;
+    console.log(userData)
+
 
 
     useEffect(() => {
