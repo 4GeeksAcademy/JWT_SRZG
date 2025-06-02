@@ -11,6 +11,7 @@ import ProfileMenu from "../components/ProfileMenu";
 
 
 export const Profile = () => {
+    const [dataPhoto, setDataPhoto] = useState(null)
     const [activeSection, setActiveSection] = useState('profile');
     const [dataPhoto, setDataPhoto] = useState(null);
     const [myCats, setMyCats] = useState([]);
@@ -124,6 +125,10 @@ export const Profile = () => {
 
                 if (response.ok) {
                     const data = await response.json();
+                    dispatch({ type: "set_user_data", payload: data.user })
+                    setUserName(data.user.name);
+
+
                     dispatch({ type: "set_user_data", payload: data.user });
                     setDataPhoto(data.profilePicture);
                 } else {
@@ -136,6 +141,21 @@ export const Profile = () => {
 
         fetchUserInfo();
     }, [token]);
+
+    const handleShowFavorites = () => {
+        setActiveSection('favorites');
+    };
+    /* const handleShowRatings = () => {
+        setActiveSection('ratings');
+    }; */
+    const handleShowMyData = () => {
+        setActiveSection('my-data');
+    };
+    const handleShowEditProfile = () => {
+        setActiveSection('edit-profile');
+    };
+
+    const location = useLocation();
 
     useEffect(() => {
         const params = new URLSearchParams(location.search);
@@ -173,7 +193,7 @@ export const Profile = () => {
                         <div className="p-3 m-3">
                             <div className="d-flex justify-content-center">
                                 <img
-                                    src={dataPhoto}
+                                    src={userData.profile_picture}
                                     alt="User Profile"
                                     className="rounded-circle ms-3"
                                     style={{ width: '80px', height: '80px', objectFit: 'cover' }}
