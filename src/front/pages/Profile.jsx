@@ -9,9 +9,7 @@ import MyCatCard from "../components/MyCatCard";
 import AdoptedCatCard from "../components/AdoptedCatCard";
 import ProfileMenu from "../components/ProfileMenu";
 
-
 export const Profile = () => {
-    const [dataPhoto, setDataPhoto] = useState(null)
     const [activeSection, setActiveSection] = useState('profile');
     const [dataPhoto, setDataPhoto] = useState(null);
     const [myCats, setMyCats] = useState([]);
@@ -24,6 +22,7 @@ export const Profile = () => {
     const token = localStorage.getItem('token');
     const { store, dispatch } = useGlobalReducer();
     const { userData } = store;
+    const location = useLocation();
 
     const adoptedCats = myCats.filter(cat =>
         cat.contacts.some(contact => contact.is_selected)
@@ -32,8 +31,6 @@ export const Profile = () => {
     const unadoptedCats = myCats.filter(cat =>
         !cat.contacts.some(contact => contact.is_selected)
     );
-
-    const location = useLocation();
 
     const handleAdoptSelect = async (catId, userId) => {
         try {
@@ -125,10 +122,6 @@ export const Profile = () => {
 
                 if (response.ok) {
                     const data = await response.json();
-                    dispatch({ type: "set_user_data", payload: data.user })
-                    setUserName(data.user.name);
-
-
                     dispatch({ type: "set_user_data", payload: data.user });
                     setDataPhoto(data.profilePicture);
                 } else {
@@ -141,21 +134,6 @@ export const Profile = () => {
 
         fetchUserInfo();
     }, [token]);
-
-    const handleShowFavorites = () => {
-        setActiveSection('favorites');
-    };
-    /* const handleShowRatings = () => {
-        setActiveSection('ratings');
-    }; */
-    const handleShowMyData = () => {
-        setActiveSection('my-data');
-    };
-    const handleShowEditProfile = () => {
-        setActiveSection('edit-profile');
-    };
-
-    const location = useLocation();
 
     useEffect(() => {
         const params = new URLSearchParams(location.search);
