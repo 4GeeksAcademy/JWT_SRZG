@@ -113,7 +113,7 @@ export const EditProfile = () => {
 
         if (response.ok) {
             const responseData = await response.json()
-            const newProfilePictureUrl = responseData.profile_picture
+            const newProfilePictureUrl = responseData.profilePicture[0]
             console.log(newProfilePictureUrl)
             const updatedUserData = {
                 ...userData,
