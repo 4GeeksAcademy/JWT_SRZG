@@ -163,7 +163,7 @@ export const Profile = () => {
             {token ? (
                 <div>
                     {activeSection === 'favorites' && <Favorites />}
-                    {activeSection === 'ratings' && <Ratings />}
+                    {activeSection === 'ratings' && <Ratings sentReviews={sentReviews} receivedReviews={receivedReviews} />}
                     {activeSection === 'my-data' && <MyData onEditClick={() => setActiveSection('edit-profile')} />}
                     {activeSection === 'edit-profile' && <EditProfile />}
 
