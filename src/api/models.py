@@ -93,11 +93,15 @@ class Favorites(db.Model):
     user_id:  Mapped[int] = mapped_column(ForeignKey('user.id'))
     michi_id: Mapped[int] = mapped_column(ForeignKey('cat_user.id'))
 
+    michi: Mapped["CatUser"] = relationship(
+        "CatUser", backref="favorites_list", lazy=True)
+
     def serialize(self):
         return {
             "id": self.id,
             "user_id": self.user_id,
-            "michi_id": self.michi_id
+            "michi_id": self.michi_id,
+            "michi_details": self.michi.serialize() if self.michi else None
         }
 
 # Cat Models
