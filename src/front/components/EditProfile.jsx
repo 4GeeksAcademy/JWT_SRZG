@@ -87,7 +87,7 @@ export const EditProfile = () => {
                 const data = await response.json();
                 dispatch({ type: "set_user_data", payload: data });
                 console.log("Perfil actualizado con éxito:", data);
-                navigate('/private')
+                navigate('/private?section=my-data')
 
             } else {
                 console.error("Error al actualizar el perfil:", response.status, await response.text());
@@ -103,7 +103,7 @@ export const EditProfile = () => {
 
 
 
-        const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/profilepicture`, {
+        const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}api/profilepicture`, {
             method: 'PUT',
             headers: {
                 'Authorization': `Bearer ${token}`
@@ -120,7 +120,7 @@ export const EditProfile = () => {
                 profile_picture: newProfilePictureUrl
             }
             dispatch({ type: "set_user_data", payload: updatedUserData });
-            navigate('/private?section=my-data')
+            navigate('/private?section=profile')
             console.log("Foto de perfil actualizada y store global actualizado:", updatedUserData);
             return;
 
