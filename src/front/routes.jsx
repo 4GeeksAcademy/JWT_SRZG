@@ -12,6 +12,10 @@ import { Profile } from './pages/Profile';
 import CatProfilePage from "./pages/CatProfilePage";
 import { CatGallery } from "./components/CatGallery";
 import { AgregarGato } from "./components/AgregarGato";
+
+import ReviewForm from "./components/ReviewForm";
+
+
 export const router = createBrowserRouter(
   createRoutesFromElements(
     <Route path="/" element={<Layout />} errorElement={<h1>Not found!</h1>}>
@@ -27,6 +31,9 @@ export const router = createBrowserRouter(
       } />
       <Route path="/" element={<CatGallery />} />
       <Route path="/cat/:catId" element={<CatProfilePage />} />  {/* Ruta para el perfil del gato */}
+
+
+      <Route path="/review" element={<ReviewForm />} />
 
     </Route>
   ),

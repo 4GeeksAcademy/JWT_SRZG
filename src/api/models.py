@@ -41,7 +41,8 @@ class User(db.Model):
             "direction": self.direction,
             "email": self.email,
             "phone": self.phone,
-            "rol": self.rol
+            "rol": self.rol,
+            "profile_picture": self.profile_picture
         }
 
  # User reviews model group
@@ -58,6 +59,7 @@ class UserReviews(db.Model):
         return {
             "id": self.id,
             "rating": self.rating,
+            "user_id": self.user_id,
             "comment": self.comment
         }
 
@@ -91,11 +93,15 @@ class Favorites(db.Model):
     user_id:  Mapped[int] = mapped_column(ForeignKey('user.id'))
     michi_id: Mapped[int] = mapped_column(ForeignKey('cat_user.id'))
 
+    michi: Mapped["CatUser"] = relationship(
+        "CatUser", backref="favorites_list", lazy=True)
+
     def serialize(self):
         return {
             "id": self.id,
             "user_id": self.user_id,
-            "michi_id": self.michi_id
+            "michi_id": self.michi_id,
+            "michi_details": self.michi.serialize() if self.michi else None
         }
 
 # Cat Models
@@ -174,6 +180,10 @@ class CatContactRequest(db.Model):
     contacted_at = db.Column(db.DateTime, default=datetime.utcnow)
     is_selected = db.Column(db.Boolean, default=False)
 
+    cat = relationship("CatUser", backref="contact_requests")
+    contactor = relationship("User", foreign_keys=[contactor_id])
+    owner = relationship("User", foreign_keys=[owner_id])
+
     __table_args__ = (db.UniqueConstraint(
         'cat_id', 'contactor_id', name='unique_contact_per_cat'),
     )
@@ -183,7 +193,9 @@ class CatContactRequest(db.Model):
             "id": self.id,
             "cat_id": self.cat_id,
             "contactor_id": self.contactor_id,
-            "owner_id": self.owner_id
+            "owner_id": self.owner_id,
+            "is_selected": self.is_selected,
+            "contacted_at": self.contacted_at.isoformat() if self.contacted_at else None
         }
 
 

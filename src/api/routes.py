@@ -248,14 +248,20 @@ def delete_user(user_id):
     return jsonify({"message": f"User with id {user_id} has been deleted."}), 200
 
 
-@api.route('/favorites/<int:michi_id>', methods=["POST"])
+@api.route('/favorites', methods=["POST"])
 @jwt_required()
-def add_favorite(michi_id):
+def add_favorite():
     current_user_id = get_jwt_identity()
     user = User.query.get(current_user_id)  # más directo que filter_by(id=...)
 
     if not user:
         return jsonify({"msg": "User not found"}), 404
+
+    data = request.get_json()
+    michi_id = data.get("michi_id")
+
+    if not michi_id:
+        return jsonify({"msg": "se necesita ID del gato"}), 400
 
     michi = CatUser.query.get(michi_id)
     if not michi:
@@ -284,8 +290,12 @@ def delete_favorite(michi_id):
     if not user:
         return jsonify({"msg": "User not found"}), 404
 
+    michi = CatUser.query.get(michi_id)
+    if not michi:
+        return jsonify({"msg": "Michi not found"}), 404
+
     favorite_to_delete = Favorites.query.filter_by(
-        user_id=user.id, michi_id=michi_id
+        user_id=user.id, michi_id=michi.id
     ).first()
 
     if not favorite_to_delete:
@@ -294,6 +304,21 @@ def delete_favorite(michi_id):
     db.session.delete(favorite_to_delete)
     db.session.commit()
     return jsonify({"msg": f"Michi with id {michi_id} has been removed from favorites"}), 200
+
+
+@api.route("/favorites", methods=["GET"])
+@jwt_required()
+def get_favorites():
+    current_user_id = get_jwt_identity()
+    user = User.query.get(current_user_id)
+
+    if not user:
+        return jsonify({"msg": "User not found"}), 404
+    user_favorites = Favorites.query.filter_by(user_id=user.id).all()
+    serialized_favorites = [favorite.serialize()
+                            for favorite in user_favorites]
+
+    return jsonify(serialized_favorites), 200
 
 
 @api.route("/cats/<int:cat_id>", methods=["GET"])
@@ -440,7 +465,7 @@ def user_profile_picture():
     """ photo_url = cloudinary_url(upload_result['public_id'], format="jpg", crop="fill", width=100,
                                height=100) """
     # actulizar el usuario con la direccion del recurso en cloudinary
-    user.profile_picture = upload_result["public_id"]
+    user.profile_picture = upload_result["secure_url"]
     db.session.add(user)
     db.session.commit()
     photo_url = cloudinary_url(user.profile_picture)
@@ -529,3 +554,101 @@ def my_cats_with_contacts():
         })
 
     return jsonify(result), 200
+
+
+@api.route("/cats/<int:cat_id>/adopt/<int:user_id>", methods=["PATCH"])
+@jwt_required()
+def mark_as_adoptant(cat_id, user_id):
+    current_user_id = get_jwt_identity()
+
+    cat = CatUser.query.get(cat_id)
+    if not cat:
+        return jsonify({"error": "Gato no encontrado"}), 404
+
+    print("Dueño del gato:", cat.user_id)
+    print("Usuario actual:", current_user_id)
+
+    if int(cat.user_id) != int(current_user_id):
+        return jsonify({"error": "No tienes permiso para marcar al adoptante"}), 403
+
+    existing_adoptant = CatContactRequest.query.filter_by(
+        cat_id=cat_id,
+        is_selected=True
+    ).first()
+
+    if existing_adoptant:
+        return jsonify({"error": "Ya has seleccionado un adoptante para este gato"}), 400
+
+    contact = CatContactRequest.query.filter_by(
+        cat_id=cat_id,
+        contactor_id=user_id
+    ).first()
+
+    if not contact:
+        return jsonify({"error": "Ese usuario no ha contactado por este gato"}), 404
+
+    contact.is_selected = True
+    db.session.commit()
+
+    return jsonify({"msg": "Adoptante marcado correctamente"}), 200
+
+
+@api.route("/user/adopted-cats", methods=["GET"])
+@jwt_required()
+def get_adopted_cats():
+    user_id = int(get_jwt_identity())
+
+    adopted_contacts = CatContactRequest.query.filter_by(
+        contactor_id=user_id,
+        is_selected=True
+    ).all()
+
+    adopted_cats = [
+        {
+            "cat_id": contact.cat.id,
+            "cat_name": contact.cat.name,
+            "photo": contact.cat.photos[0].url if contact.cat.photos else None,
+            "owner_nickname": contact.owner.nickname,
+            "owner_id": contact.owner.id
+        } for contact in adopted_contacts
+    ]
+
+    return jsonify(adopted_cats), 200
+
+
+@api.route("/user/given-cats-with-adoptant", methods=["GET"])
+@jwt_required()
+def get_given_cats():
+    user_id = int(get_jwt_identity())
+
+    given_contacts = CatContactRequest.query.filter_by(
+        owner_id=user_id,
+        is_selected=True
+    ).all()
+
+    given_cats = [
+        {
+            "cat_id": contact.cat.id,
+            "cat_name": contact.cat.name,
+            "photo": contact.cat.photos[0].url if contact.cat.photos else None,
+            "adoptant_nickname": contact.contactor.nickname,
+            "adoptant_id": contact.contactor.id
+        } for contact in given_contacts
+    ]
+
+    return jsonify(given_cats), 200
+
+
+@api.route("/user/<int:user_id>", methods=["GET"])
+@jwt_required()
+def get_user_by_id(user_id):
+    user = User.query.get(user_id)
+    if not user:
+        return jsonify({"error": "Usuario no encontrado"}), 404
+
+    return jsonify({
+        "id": user.id,
+        "name": user.name,
+        "nickname": user.nickname,
+        "profile_picture": user.profile_picture
+    }), 200
