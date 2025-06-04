@@ -3,7 +3,7 @@ import { useParams } from "react-router-dom";
 import CatInfoBox from "../components/CatInfoBox";
 import CatPhoto from "../components/CatPhoto";
 import ContactModal from "../components/ContactModal";
-
+import UploadCatProfilePicture from "../components/UploadCatProfilePicture";
 
 const CatProfilePage = () => {
   const { catId } = useParams();
@@ -84,20 +84,32 @@ const CatProfilePage = () => {
   return (
     <div className="container py-4">
       <div className="row">
-        {/* Columna de fotos */}
-        <div className="col-12 col-md-3 d-flex flex-column gap-3">
-          {cat.photos.length > 0 ? (
-            cat.photos.map((photo, index) => (
-              <CatPhoto key={index} photoUrl={photo.url} />
-            ))
-          ) : (
-            <CatPhoto photoUrl="https://via.placeholder.com/300x200?text=Sin+foto" />
-          )}
+        <div className="col-12">
+          {/* Foto de perfil y nombre */}
+          <div className="text-center mb-4">
+            {cat.photos.length > 0 ? (
+              <img
+                src={cat.photos[cat.photos.length - 1].foto}
+                alt={`Foto de ${cat.name}`}
+                className="rounded-circle"
+                style={{ width: "120px", height: "120px", objectFit: "cover" }}
+              />
+            ) : (
+              <img
+                src="https://via.placeholder.com/120?text=Michi"
+                alt="Sin foto"
+                className="rounded-circle"
+                style={{ width: "120px", height: "120px", objectFit: "cover" }}
+              />
+            )}
+            <h2 className="mt-3 text-uppercase fw-bold">{cat.name}</h2>
+          </div>
         </div>
+      </div>
 
-        {/* Columna de info */}
-        <div className="col-12 col-md-9">
-          <h2 className="text-uppercase fw-bold mb-3">{cat.name}</h2>
+      {/* Info del gato y fotos */}
+      <div className="row">
+        <div className="col-md-9">
           <div className="border border-primary p-3 bg-light">
             <CatInfoBox
               name={cat.name}
@@ -110,19 +122,37 @@ const CatProfilePage = () => {
             />
           </div>
 
-          {/* Botones */}
           <div className="mt-3 d-flex gap-2">
             {currentUserId !== cat.user_id && (
               <button className="btn btn-primary" onClick={handleContact}>
                 Contactar
               </button>
             )}
-
-            <button className="btn btn-outline-danger">♡</button>
-            <button className="btn btn-outline-warning">★</button>
           </div>
+
+          {/* Formulario para subir foto si eres el dueño */}
+          {currentUserId === cat.user_id && (
+            <UploadCatProfilePicture
+              catId={cat.id}
+              onUploadSuccess={(photo) => {
+                setCat(prev => ({
+                  ...prev,
+                  photos: [...prev.photos,photo]
+                }));
+              }}
+            />
+          )}
+        </div>
+
+        {/* Galería lateral */}
+        <div className="col-md-3 d-flex flex-column gap-3">
+          {cat.photos.map((photo, index) => (
+            <CatPhoto key={index} photoUrl={photo.foto} />
+          ))}
         </div>
       </div>
+
+      {/* Modal contacto */}
       <ContactModal
         show={showModal}
         person={ownerInfo}
@@ -130,9 +160,7 @@ const CatProfilePage = () => {
         onClose={() => setShowModal(false)}
       />
     </div>
-
   );
-
 };
 
 export default CatProfilePage;

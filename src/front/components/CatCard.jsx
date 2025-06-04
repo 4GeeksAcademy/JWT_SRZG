@@ -11,7 +11,7 @@ const CatCard = ({ cat }) => {
 
   // Imagen del gato (o placeholder si no hay fotos)
   const imageUrl =
-    cat.photos?.[0]?.url || "https://via.placeholder.com/300x200?text=Sin+foto";
+    cat.photos?.[0]?.foto || "https://via.placeholder.com/300x200?text=Sin+foto";
 
   return (
     <div

@@ -311,26 +311,40 @@ def cat_list():
         "cats": [cat.serialize() for cat in cats],
     }), 200
 
-
 @api.route("/cats", methods=["POST"])
 @jwt_required()
 def create_cat():
-    body = request.get_json()
-    user_id = get_jwt_identity()
-    new_cat = CatUser(
-        name=body["name"],
-        breed=body.get("breed"),
-        age=body.get("age"),
-        weight=body.get("weight"),
-        description=body.get("description"),
-        color=body.get("color"),
-        sex=body.get("sex"),
-        is_active=body.get("is_active", True),
-        user_id=user_id
-    )
-    db.session.add(new_cat)
-    db.session.commit()
-    return jsonify(new_cat.serialize()), 201
+    try:
+        body = request.get_json()
+        print("Datos recibidos:", body)
+
+        # Validación básica
+        if not body or "name" not in body:
+            return jsonify({"msg": "Falta el campo 'name'"}), 400
+
+        user_id = get_jwt_identity()
+
+        new_cat = CatUser(
+            name=body["name"],
+            breed=body.get("breed"),
+            age=body.get("age"),
+            weight=body.get("weight"),
+            description=body.get("description"),
+            color=body.get("color"),
+            sex=body.get("sex"),
+            is_active=body.get("is_active", True),
+            user_id=user_id
+        )
+
+        db.session.add(new_cat)
+        db.session.commit()
+
+        return jsonify(new_cat.serialize()), 201
+
+    except Exception as e:
+        print("Error en create_cat:", str(e))
+        return jsonify({"msg": "Error interno", "error": str(e)}), 500
+
 
 
 @api.route("/cats/<int:id>", methods=["DELETE"])
@@ -432,6 +446,58 @@ def user_profile_picture():
     photo_url = cloudinary_url(user.profile_picture)
     # se respponde con un mensaje y la direccion de la foto
     return jsonify({"userId": user_id, "msg": "foto actualizada", "profilePicture": photo_url})
+
+ #-----------#
+@api.route("/cats/<int:cat_id>/profilepicture", methods=["PUT"])
+@jwt_required()
+def upload_cat_profile_picture(cat_id):
+    try:
+        user_id = int(get_jwt_identity())
+        cat = CatUser.query.get(cat_id)
+
+        if not cat:
+            return jsonify({"msg": "Gato no encontrado"}), 404
+
+        if cat.user_id != user_id:
+            print(f"❌ No autorizado: user_id={user_id} ≠ cat.user_id={cat.user_id}")
+            return jsonify({"msg": "No autorizado"}), 403
+
+        if "CAT_PROFILE" not in request.files:
+            return jsonify({"msg": "No se envió imagen"}), 400
+
+        photo = request.files["CAT_PROFILE"]
+
+        # ⏫ Subida a Cloudinary
+        try:
+            upload_result = upload(photo)
+            secure_url = upload_result.get("secure_url")
+            if not secure_url:
+                raise Exception("Cloudinary no devolvió una URL segura")
+        except Exception as e:
+            return jsonify({"msg": "Error al subir la imagen", "error": str(e)}), 500
+
+        # 📸 Guardar en base de datos
+        new_photo = CatPhoto(
+            foto=secure_url,
+            cat_id=cat.id,
+            user_id=user_id
+        )
+
+        db.session.add(new_photo)
+        db.session.commit()
+
+        return jsonify({
+            "msg": "Foto del gato subida correctamente",
+            "photo": new_photo.serialize()
+        }), 201
+
+    except Exception as e:
+        print("🐞 Error general:", str(e))
+        return jsonify({"msg": "Error inesperado", "error": str(e)}), 500
+
+
+
+
 
 
 @api.route("/cats-contacted", methods=["GET"])
