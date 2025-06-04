@@ -58,6 +58,7 @@ const CatCard = ({ cat }) => {
           ♡
         </span>
       </div>
+
     </div>
   );
 };
