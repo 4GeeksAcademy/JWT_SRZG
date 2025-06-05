@@ -8,6 +8,8 @@ const ReviewForm = () => {
     const [rating, setRating] = useState(5);
     const [comment, setComment] = useState("");
     const [recipientName, setRecipientName] = useState("");
+    const [alert, setAlert] = useState({ type: "", message: "" });
+
     const navigate = useNavigate();
     const token = localStorage.getItem("token");
 
@@ -38,7 +40,7 @@ const ReviewForm = () => {
         e.preventDefault();
 
         if (!michiId) {
-            alert("Falta el ID del michi para enviar la valoración.");
+            setAlert({ type: "danger", message: "Falta el ID del michi para enviar la valoración." });
             return;
         }
 
@@ -52,21 +54,31 @@ const ReviewForm = () => {
                 body: JSON.stringify({ rating, comment }),
             });
 
+            const data = await res.json();
+
             if (res.ok) {
-                alert("¡Valoración enviada con éxito!");
-                navigate("/private?section=ratings");
+                setAlert({ type: "success", message: "¡Valoración enviada con éxito!" });
+                setTimeout(() => navigate("/private?section=ratings"), 2000);
             } else {
-                const data = await res.json();
-                alert(data.msg || "Error al enviar la valoración");
+                setAlert({ type: "danger", message: data.msg || "Error al enviar la valoración" });
             }
         } catch (err) {
             console.error("Error al enviar valoración:", err);
+            setAlert({ type: "danger", message: "Error de red al enviar la valoración" });
         }
     };
 
     return (
         <div className="container py-5">
             <h2 className="text-center">Valorar a {recipientName}</h2>
+
+            {alert.message && (
+                <div className={`alert alert-${alert.type} alert-dismissible fade show`} role="alert">
+                    {alert.message}
+                    <button type="button" className="btn-close" onClick={() => setAlert({ type: "", message: "" })}></button>
+                </div>
+            )}
+
             <form onSubmit={handleSubmit} className="mx-auto" style={{ maxWidth: "600px" }}>
                 <div className="mb-3">
                     <label htmlFor="rating" className="form-label">Puntuación</label>

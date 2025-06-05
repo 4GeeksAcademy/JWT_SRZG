@@ -7,10 +7,13 @@ from flask import Flask, request, jsonify, url_for, Blueprint
 from api.models import db, User, Favorites, TokenBlockedList, UserReviews, UserReviewsDetails, CatUser, CatPhoto, CatContactRequest
 from api.utils import generate_sitemap, APIException
 from flask_cors import CORS
+from sqlalchemy import or_
 from flask_bcrypt import Bcrypt
 from flask_jwt_extended import create_access_token
 from flask_jwt_extended import get_jwt_identity, get_jwt
 from flask_jwt_extended import jwt_required
+from faker import Faker
+from random import choice, randint
 
 
 import cloudinary
@@ -542,6 +545,7 @@ def my_cats_with_contacts():
                 "nickname": contactor.nickname,
                 "email": contactor.email,
                 "phone": contactor.phone,
+                "profile_picture": contactor.profile_picture,  # ✅ Esta es la clave
                 "contacted_at": contact.contacted_at.isoformat(),
                 "is_selected": contact.is_selected
             })
@@ -606,7 +610,7 @@ def get_adopted_cats():
         {
             "cat_id": contact.cat.id,
             "cat_name": contact.cat.name,
-            "photo": contact.cat.photos[0].url if contact.cat.photos else None,
+            "photo": next((photo.foto for photo in contact.cat.photos), None),
             "owner_nickname": contact.owner.nickname,
             "owner_id": contact.owner.id
         } for contact in adopted_contacts
@@ -629,7 +633,7 @@ def get_given_cats():
         {
             "cat_id": contact.cat.id,
             "cat_name": contact.cat.name,
-            "photo": contact.cat.photos[0].url if contact.cat.photos else None,
+            "photo": next((photo.foto for photo in contact.cat.photos), None),
             "adoptant_nickname": contact.contactor.nickname,
             "adoptant_id": contact.contactor.id
         } for contact in given_contacts
@@ -651,3 +655,60 @@ def get_user_by_id(user_id):
         "nickname": user.nickname,
         "profile_picture": user.profile_picture
     }), 200
+
+
+@api.route('/cats/search', methods=["GET"])
+def search_cats():
+    query = request.args.get("q", "").strip()
+    if not query:
+        return jsonify([])
+
+    # Filtra por nombre, raza o color, y solo gatos activos
+    cats = CatUser.query.filter(
+        CatUser.is_active == True,
+        or_(
+            CatUser.name.ilike(f"%{query}%"),
+            CatUser.breed.ilike(f"%{query}%"),
+            CatUser.color.ilike(f"%{query}%")
+        )
+    ).all()
+
+    return jsonify([cat.serialize() for cat in cats]), 200
+
+
+# gatos de prueba, snippet
+def insert_test_cats(n=10, user_id=1):
+    colors = ['negro', 'blanco', 'gris', 'naranja', 'marrón']
+    breeds = ['persa', 'siamés', 'maine coon', 'británico', 'común europeo']
+    sex = ['male', 'female']
+    fake = Faker()
+
+    for _ in range(n):
+        cat = CatUser(
+            name=fake.first_name(),
+            breed=choice(breeds),
+            age=randint(1, 15),
+            weight=round(randint(200, 700) / 100, 1),
+            description=fake.sentence(),
+            color=choice(colors),
+            sex=choice(sex),
+            user_id=user_id,
+            is_active=True
+        )
+        db.session.add(cat)
+        db.session.flush()
+
+        photo = CatPhoto(
+            foto="https://placekitten.com/300/300",
+            cat_id=cat.id,
+            user_id=user_id
+        )
+        db.session.add(photo)
+
+    db.session.commit()
+
+
+@api.route("/insert-test-cats", methods=["POST"])
+def add_test_cats():
+    insert_test_cats(n=10, user_id=1)
+    return jsonify({"msg": "Gatos de prueba insertados"})
