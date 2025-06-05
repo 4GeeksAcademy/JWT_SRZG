@@ -1,5 +1,6 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
+import { AddFavorite } from "./AddFavorite";
 
 const CatCard = ({ cat }) => {
   const navigate = useNavigate();
@@ -16,7 +17,7 @@ const CatCard = ({ cat }) => {
   return (
     <div
       className="card m-2 shadow-sm border-0"
-      style={{ width: "14rem", cursor: "pointer", position: "relative" }}
+      style={{ width: "14rem", height: "18rem", cursor: "pointer", position: "relative" }}
       onClick={handleClick}
     >
       {/* Imagen con borde azul */}
@@ -44,19 +45,19 @@ const CatCard = ({ cat }) => {
         <p className="mb-0" style={{ fontSize: "0.85rem" }}>
           <strong>Sexo:</strong> {cat.sex === "male" ? "Macho" : "Hembra"}
         </p>
-
-        {/* Icono de corazón (decorativo por ahora) */}
-        <span
+        <div
           className="position-absolute"
           style={{
             bottom: "10px",
             right: "10px",
-            color: "#bbb",
-            fontSize: "18px"
+
           }}
+          // Importante: Detenemos la propagación del clic aquí para que el botón AddFavorite funcione
+          // y no active el handleClick de la tarjeta principal al hacer clic en él.
+          onClick={(e) => e.stopPropagation()}
         >
-          ♡
-        </span>
+          <AddFavorite michiId={cat.id} />
+        </div>
       </div>
 
     </div>

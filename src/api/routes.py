@@ -271,14 +271,14 @@ def add_favorite():
     existing_fav = Favorites.query.filter_by(
         user_id=user.id, michi_id=michi.id).first()
     if existing_fav:
-        return jsonify({"msg": "This michi is already in your favorites"}), 409
+        return jsonify({"msg": "This michi is already in your favorites", "favorite": existing_fav.serialize()}), 409
 
     # Crea y guarda el favorito
     new_favorite = Favorites(user_id=user.id, michi_id=michi.id)
     db.session.add(new_favorite)
     db.session.commit()
 
-    return jsonify({"msg": "Michi has been added to favorites"}), 201
+    return jsonify({"msg": "Michi has been added to favorites", "favorite": new_favorite.serialize()}), 201
 
 
 @api.route('/favorites/<int:michi_id>', methods=["DELETE"])
@@ -336,6 +336,7 @@ def cat_list():
         "cats": [cat.serialize() for cat in cats],
     }), 200
 
+
 @api.route("/cats", methods=["POST"])
 @jwt_required()
 def create_cat():
@@ -369,7 +370,6 @@ def create_cat():
     except Exception as e:
         print("Error en create_cat:", str(e))
         return jsonify({"msg": "Error interno", "error": str(e)}), 500
-
 
 
 @api.route("/cats/<int:id>", methods=["DELETE"])
@@ -472,7 +472,9 @@ def user_profile_picture():
     # se respponde con un mensaje y la direccion de la foto
     return jsonify({"userId": user_id, "msg": "foto actualizada", "profilePicture": photo_url})
 
- #-----------#
+ # -----------#
+
+
 @api.route("/cats/<int:cat_id>/profilepicture", methods=["PUT"])
 @jwt_required()
 def upload_cat_profile_picture(cat_id):
@@ -484,7 +486,8 @@ def upload_cat_profile_picture(cat_id):
             return jsonify({"msg": "Gato no encontrado"}), 404
 
         if cat.user_id != user_id:
-            print(f"❌ No autorizado: user_id={user_id} ≠ cat.user_id={cat.user_id}")
+            print(
+                f"❌ No autorizado: user_id={user_id} ≠ cat.user_id={cat.user_id}")
             return jsonify({"msg": "No autorizado"}), 403
 
         if "CAT_PROFILE" not in request.files:
@@ -519,10 +522,6 @@ def upload_cat_profile_picture(cat_id):
     except Exception as e:
         print("🐞 Error general:", str(e))
         return jsonify({"msg": "Error inesperado", "error": str(e)}), 500
-
-
-
-
 
 
 @api.route("/cats-contacted", methods=["GET"])
