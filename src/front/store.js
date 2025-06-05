@@ -48,6 +48,27 @@ export default function storeReducer(store, action = {}) {
         userFavorites: action.payload,
       };
 
+    case "add_new_favorite":
+      if (
+        !store.userFavorites.some(
+          (fav) => fav.michi_id === action.payload.michi_id
+        )
+      ) {
+        return {
+          ...store,
+          userFavorites: [...store.userFavorites, action.payload],
+        };
+      }
+      return store;
+
+    case "remove_user_favorite":
+      return {
+        ...store,
+        userFavorites: store.userFavorites.filter(
+          (fav) => fav.michi_id !== action.payload
+        ),
+      };
+
     default:
       throw Error("Unknown action.");
   }

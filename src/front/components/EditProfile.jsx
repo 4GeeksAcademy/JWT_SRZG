@@ -103,7 +103,7 @@ export const EditProfile = () => {
 
 
 
-        const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}api/profilepicture`, {
+        const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/profilepicture`, {
             method: 'PUT',
             headers: {
                 'Authorization': `Bearer ${token}`

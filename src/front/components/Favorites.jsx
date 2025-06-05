@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from "react";
 import useGlobalReducer from "../hooks/useGlobalReducer";
 import { Link, useNavigate } from "react-router-dom";
+import { AddFavorite } from "./AddFavorite";
 
 export const Favorites = () => {
     const { store, dispatch } = useGlobalReducer();
@@ -9,7 +10,6 @@ export const Favorites = () => {
 
     const navigate = useNavigate();
 
-    const [favoriteCats, setFavoriteCats] = useState([]);
 
     const defaultMichiImg = 'https://media.istockphoto.com/id/519497396/es/vector/cara-de-gato-negro.jpg?s=612x612&w=0&k=20&c=0ic3dvnWbMOIq1TrDVLDB6_T_Jez3jpS33sUR5Y31Ag='
 
@@ -17,15 +17,15 @@ export const Favorites = () => {
 
 
     const fetchLoadingFavorites = useCallback(async () => {
-        try {
-            const token = localStorage.getItem("token"); // Obtén el token aquí
-            if (!token) {
-                setError("No hay token de autenticación. Por favor, inicia sesión.");
-                setLoading(false);
-                navigate('/login'); // Redirigir a login si no hay token
-                return;
-            }
+        const token = localStorage.getItem("token"); // Obtén el token aquí
+        if (!token) {
+            setError("No hay token de autenticación. Por favor, inicia sesión.");
+            setLoading(false);
+            navigate('/login'); // Redirigir a login si no hay token
+            return;
+        }
 
+        try {
             const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/favorites`, {
                 method: 'GET',
                 headers: {
@@ -40,53 +40,17 @@ export const Favorites = () => {
                     navigate('/login');
                 }
                 return;
-
             }
 
             const favoritesData = await response.json();
-            console.log("datos de favoritos cargados", favoritesData);
+            console.log("Datos de favoritos refrescados después de una acción:", favoritesData);
             dispatch({ type: "set_user_favorites", payload: favoritesData });
-
-
 
         } catch (error) {
             console.error("Error fetching favorites:", error);
         }
     }, [dispatch, navigate]);
 
-
-    useEffect(() => {
-        fetchLoadingFavorites();
-    }, [fetchLoadingFavorites]);
-
-    const handleRemoveFavorite = async (catId) => {
-        const token = localStorage.getItem("token");
-
-        if (!window.confirm("¿Estás seguro de que quieres eliminar este Michi de tus favoritos?")) {
-            return;
-        }
-
-        try {
-            const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/favorites/${catId}`, {
-                method: "DELETE",
-                headers: {
-                    "Content-Type": "application/json",
-                    "Authorization": `Bearer ${token}`
-                }
-            });
-
-            if (!response.ok) {
-                console.error("Error eliminando favorito:", response.statusText);
-                return;
-            }
-            fetchLoadingFavorites();
-            console.log("favorito eliminado con exito")
-
-
-        } catch (error) {
-            console.error("Error eliminando favorito:", error);
-        }
-    };
 
     return (
         <div>
@@ -102,7 +66,7 @@ export const Favorites = () => {
                 <div className="row row-cols-1 row-cols-md-3 g-4 justify-content-center">
                     {userFavorites.map(favorite => {
                         const michi = favorite.michi_details;
-                        const imageUrl = michi && michi.image ? michi.image : defaultMichiImg;
+                        const imageUrl = michi.photos[0] ? michi.photos[0] : defaultMichiImg;
 
                         return (
                             <div key={favorite.id} className="col">
@@ -121,12 +85,17 @@ export const Favorites = () => {
                                             {michi.description && <p className="card-text text-muted small">{michi.description}</p>}
                                         </div>
                                         <div className="d-grid gap-2 mt-auto">
-                                            <button
-                                                onClick={() => handleRemoveFavorite(michi.id)} // Usa michi.id para eliminar
-                                                className="btn btn-danger btn-sm"
+                                            <div
+                                                className="position-absolute"
+                                                style={{
+                                                    bottom: "10px",
+                                                    right: "10px",
+                                                }}
+                                                onClick={(e) => e.stopPropagation()}
                                             >
-                                                Eliminar de Favoritos
-                                            </button>
+                                                <AddFavorite michiId={michi.id} />
+                                            </div>
+
                                             {/* Opcional: Enlace para ver los detalles completos del Michi */}
                                             {/* <Link to={`/michi/${michi.id}`} className="btn btn-outline-primary btn-sm">
                                             Ver Detalles
