@@ -15,6 +15,7 @@ export const initialStore = () => {
     ],
     userData: [],
     userFavorites: [],
+    myCats:[],//añadi esto
   };
 };
 
@@ -47,6 +48,12 @@ export default function storeReducer(store, action = {}) {
         ...store,
         userFavorites: action.payload,
       };
+
+      case "add_cat": // añadi esto
+        return {
+          ...store,
+          myCats: action.payload,
+        }
 
     default:
       throw Error("Unknown action.");

@@ -22,7 +22,7 @@ export const router = createBrowserRouter(
       <Route index element={<Home />} />
       <Route path="/register" element={<RegisterForm />} />
       <Route path="/login" element={<LoginForm />} />
-      <Route path="/agregargato" element={<AgregarGato />} />
+      
 
       <Route path="/private" element={
         <PrivateRoute>

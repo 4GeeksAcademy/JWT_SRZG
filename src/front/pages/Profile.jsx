@@ -8,6 +8,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import MyCatCard from "../components/MyCatCard";
 import AdoptedCatCard from "../components/AdoptedCatCard";
 import ProfileMenu from "../components/ProfileMenu";
+import { AgregarGato } from "../components/AgregarGato";
 
 export const Profile = () => {
     const [activeSection, setActiveSection] = useState('profile');
@@ -182,7 +183,7 @@ export const Profile = () => {
                             <ProfileMenu onSelect={setActiveSection} />
                         </div>
                     )}
-
+                    {activeSection === 'add-cat' && <AgregarGato />} 
                     {activeSection === 'my-cats' && (
                         <>
                             <h2 className="text-center mt-4">Mis Michis sin adoptar</h2>
