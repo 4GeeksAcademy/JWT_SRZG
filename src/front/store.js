@@ -15,6 +15,7 @@ export const initialStore = () => {
     ],
     userData: [],
     userFavorites: [],
+    myCats:[],//añadi esto
   };
 };
 
@@ -48,6 +49,11 @@ export default function storeReducer(store, action = {}) {
         userFavorites: action.payload,
       };
 
+      case "add_cat": // añadi esto
+        return {
+          ...store,
+          myCats: action.payload,
+        }
     case "add_new_favorite":
       if (
         !store.userFavorites.some(

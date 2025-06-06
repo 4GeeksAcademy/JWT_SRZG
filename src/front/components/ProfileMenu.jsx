@@ -4,14 +4,17 @@ import mimichisImg from "../assets/img/mimichis.png";
 import ratingImg from "../assets/img/rating.png";
 import dataImg from "../assets/img/data.png";
 import editdaImg from "../assets/img/editda.png";
+import michiAddImg from "../assets/img/michiadd.png";
 
 const ProfileMenu = ({ onSelect }) => {
     const sections = [
+
         { key: 'favorites', label: 'Favoritos', icon: favsImg },
         { key: 'ratings', label: 'Valoraciones', icon: ratingImg },
         { key: 'my-data', label: 'Mis datos', icon: dataImg },
         { key: 'edit-profile', label: 'Editar perfil', icon: editdaImg },
-        { key: 'my-cats', label: 'Mis Michis', icon: mimichisImg }
+        { key: 'my-cats', label: 'Mis Michis', icon: mimichisImg },
+        { key: 'add-cat', label: 'Agregar Michi', icon: michiAddImg },
     ];
 
     return (

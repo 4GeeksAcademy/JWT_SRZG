@@ -1,6 +1,9 @@
 import React, { useState } from "react";
+import useGlobalReducer from "../hooks/useGlobalReducer";
 
 export const AgregarGato = () => {
+  const { dispatch } = useGlobalReducer();
+
   const [formData, setFormData] = useState({
     name: "",
     breed: "",
@@ -12,6 +15,8 @@ export const AgregarGato = () => {
   });
 
   const [selectedFile, setSelectedFile] = useState(null);
+  const [submitStatus, setSubmitStatus] = useState(""); // ✅ para mostrar mensaje
+
   const token = localStorage.getItem("token");
 
   const handleChange = (e) => {
@@ -26,7 +31,6 @@ export const AgregarGato = () => {
     e.preventDefault();
 
     try {
-      // Paso 1: Crear el gato
       const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}api/cats`, {
         method: "POST",
         headers: {
@@ -44,7 +48,6 @@ export const AgregarGato = () => {
       const newCat = await response.json();
       const catId = newCat.id;
 
-      // Paso 2: Subir la foto si hay archivo
       if (selectedFile) {
         const photoForm = new FormData();
         photoForm.append("CAT_PROFILE", selectedFile);
@@ -63,7 +66,16 @@ export const AgregarGato = () => {
         }
       }
 
-      alert("Gato y foto agregados correctamente.");
+      // Obtener gato con la foto
+      const updatedCatResponse = await fetch(`${import.meta.env.VITE_BACKEND_URL}api/cats/${catId}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      const updatedCat = await updatedCatResponse.json();
+      dispatch({ type: "add_cat", payload: updatedCat });
+
+      setSubmitStatus("Gato y foto agregados correctamente."); // ✅ mensaje
 
       setFormData({
         name: "",
@@ -77,7 +89,7 @@ export const AgregarGato = () => {
       setSelectedFile(null);
     } catch (error) {
       console.error("Error en el proceso:", error);
-      alert("Error en el proceso: " + error.message);
+      setSubmitStatus("Error: " + error.message); // ✅ mensaje de error
     }
   };
 
@@ -123,6 +135,11 @@ export const AgregarGato = () => {
             </button>
           </div>
         </form>
+
+        {/* ✅ Mensaje debajo del formulario */}
+        {submitStatus && (
+          <div className="mt-3 alert alert-info text-center">{submitStatus}</div>
+        )}
       </div>
     </div>
   );
