@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { Favorites } from "../components/Favorites";
 import { Ratings } from "../components/Ratings";
 import { MyData } from "../components/MyData";
@@ -77,6 +77,50 @@ export const Profile = () => {
             Number(review.target_user_id) === Number(targetId) && Number(review.michi_id) === Number(michiId)
         );
     };
+
+    const fetchUserFavorites = useCallback(async () => {
+        if (!token) {
+            console.warn("No hay token de autenticación para cargar favoritos en el perfil. Redirigiendo a login.");
+            dispatch({ type: "set_user_favorites", payload: [] }); // Limpia favoritos en el store
+            navigate('/login'); // Redirige si no hay token
+            return;
+        }
+
+        try {
+            const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/favorites`, {
+                method: 'GET',
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${token}`
+                }
+            });
+
+            if (!response.ok) {
+                console.error("Error al cargar favoritos en el perfil:", response.status, response.statusText);
+                if (response.status === 401) {
+                    console.log("Token expirado o inválido. Limpiando token y redirigiendo a login.");
+                    localStorage.removeItem('token');
+                    dispatch({ type: "set_user_favorites", payload: [] });
+                    navigate('/login');
+                }
+                return;
+            }
+
+            const favoritesData = await response.json();
+            console.log("Favoritos del usuario cargados en Profile:", favoritesData);
+            dispatch({ type: "set_user_favorites", payload: favoritesData }); // Guarda en el store global
+
+        } catch (error) {
+            console.error("Error de red al cargar favoritos en Profile:", error);
+        }
+    }, [token, dispatch, navigate]);
+
+
+    useEffect(() => {
+        fetchUserFavorites();
+    }, [fetchUserFavorites]);
+
+
 
     useEffect(() => {
         const fetchAdoptionData = async () => {
