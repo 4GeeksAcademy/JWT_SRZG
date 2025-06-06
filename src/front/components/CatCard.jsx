@@ -32,7 +32,7 @@ const CatCard = ({ cat }) => {
 
       {/* Información del gato */}
       <div className="card-body text-center p-2 position-relative">
-        <h6 className="card-title text-uppercase fw-bold mb-1">{cat.name}</h6>
+        <h6 className="card-title text-uppercase fw-bold mb-1 " >{cat.name}</h6>
         <p className="mb-1" style={{ fontSize: "0.85rem" }}>
           <strong>Raza:</strong> {cat.breed || "No especificada"}
         </p>
