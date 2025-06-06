@@ -6,7 +6,8 @@ const ProfileMenu = ({ onSelect }) => {
         { key: 'ratings', label: 'Valoraciones' },
         { key: 'my-data', label: 'Mis datos' },
         { key: 'edit-profile', label: 'Editar perfil' },
-        { key: 'my-cats', label: 'Mis Michis' }
+        { key: 'my-cats', label: 'Mis Michis' },
+        { key: 'add-cat', label: 'Agregar Gato' }
     ];
 
     return (

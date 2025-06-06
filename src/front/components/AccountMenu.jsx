@@ -19,6 +19,7 @@ export const AccountMenu = () => {
                 <li><hr className="dropdown-divider" /></li>
                 <li><Link className="dropdown-item" to="/private?section=my-data">Mis Datos</Link></li>
                 <li><Link className="dropdown-item" to="/private?section=edit-profile">Editar Perfil</Link></li>
+                <li><Link className="dropdown-item" to="/private?section=add-cat">Agregar Gato</Link></li>
             </ul>
         </div>
     )
