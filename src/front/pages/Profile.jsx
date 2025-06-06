@@ -251,7 +251,7 @@ export const Profile = () => {
                                             <div key={cat.cat_id} className="col-md-4 mb-4">
                                                 <AdoptedCatCard
                                                     catName={cat.cat_name}
-                                                    photo={cat.cat_photo}
+                                                    photo={cat.photo}
                                                     userLabel="Adoptante"
                                                     nickname={cat.adoptant_nickname}
                                                     onRate={() => goToReview(cat.adoptant_id, cat.cat_id)}
@@ -270,7 +270,7 @@ export const Profile = () => {
                                         <div key={cat.cat_id} className="col-md-4 mb-4">
                                             <AdoptedCatCard
                                                 catName={cat.cat_name}
-                                                photo={cat.cat_photo}
+                                                photo={cat.photo}
                                                 userLabel="Dueño anterior"
                                                 nickname={cat.owner_nickname}
                                                 onRate={() => goToReview(cat.owner_id, cat.cat_id)}

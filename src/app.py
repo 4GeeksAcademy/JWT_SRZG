@@ -14,6 +14,7 @@ from flask_jwt_extended import JWTManager
 from datetime import timedelta
 from flask_bcrypt import Bcrypt
 from flask_cors import CORS
+from urllib.parse import urlparse
 
 # from models import Person
 
@@ -21,8 +22,15 @@ ENV = "development" if os.getenv("FLASK_DEBUG") == "1" else "production"
 static_file_dir = os.path.join(os.path.dirname(
     os.path.realpath(__file__)), '../public/')
 app = Flask(__name__)
-CORS(app, resources={
-     r"/*": {"origins": "https://orange-space-trout-r4qgjj947v936x7-3000.app.github.dev"}}, supports_credentials=True)
+
+allowed_origin = os.getenv("VITE_BACKEND_URL", "http://localhost:3000")
+
+if "," in allowed_origin:
+    allowed_origin = [url.strip() for url in allowed_origin.split(",")]
+
+CORS(app, resources={r"/*": {"origins": allowed_origin}},
+     supports_credentials=True)
+
 app.url_map.strict_slashes = False
 jwt = JWTManager(app)
 bcrypt = Bcrypt(app)

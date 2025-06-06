@@ -1,11 +1,13 @@
 import React, { useState } from "react";
 import ContactModal from "./ContactModal";
+import defaultProfileImg from "../assets/img/default_profile.png";
 
 const MyCatCard = ({ cat, isOwner, onAdoptSelect }) => {
     const [selectedContact, setSelectedContact] = useState(null);
     const [showModal, setShowModal] = useState(false);
 
-    const alreadyHasAdoptant = cat.contacts.some(contact => contact.is_selected);
+    const alreadyHasAdoptant = Array.isArray(cat.contacts) && cat.contacts.some(contact => contact.is_selected);
+
 
     const handleOpenModal = (contact) => {
         setSelectedContact(contact);
@@ -23,10 +25,13 @@ const MyCatCard = ({ cat, isOwner, onAdoptSelect }) => {
         }
     };
 
-    const recentContacts = cat.contacts
-        .slice()
-        .sort((a, b) => new Date(b.contacted_at) - new Date(a.contacted_at))
-        .slice(0, 3);
+    const recentContacts = Array.isArray(cat.contacts)
+        ? cat.contacts
+            .slice()
+            .sort((a, b) => new Date(b.contacted_at) - new Date(a.contacted_at))
+            .slice(0, 3)
+        : [];
+
 
     return (
         <div className="card h-100">
@@ -39,9 +44,10 @@ const MyCatCard = ({ cat, isOwner, onAdoptSelect }) => {
                         {recentContacts.map((contact, index) => (
                             <li key={index} className="list-group-item">
                                 <div className="d-flex align-items-center justify-content-between">
+
                                     <div className="d-flex align-items-center gap-3">
                                         <img
-                                            src={contact.profile_picture || "https://via.placeholder.com/40"}
+                                            src={contact.profile_picture || defaultProfileImg}
                                             alt="Foto de perfil"
                                             className="rounded-circle"
                                             style={{ width: "40px", height: "40px", objectFit: "cover" }}
@@ -55,15 +61,17 @@ const MyCatCard = ({ cat, isOwner, onAdoptSelect }) => {
                                         <button
                                             className="btn btn-sm btn-outline-primary"
                                             onClick={() => handleOpenModal(contact)}
+                                            title="Ver Datos de usuario"
                                         >
-                                            Ver datos
+                                            <i class="fas fa-address-card"></i>
                                         </button>
                                         {isOwner && !alreadyHasAdoptant && !contact.is_selected && (
                                             <button
                                                 className="btn btn-sm btn-success"
                                                 onClick={() => handleMarkAsAdoptant(contact.contactor_id)}
+                                                title="Marcar como adoptante"
                                             >
-                                                Marcar como adoptante
+                                                <i class="fas fa-handshake"></i>
                                             </button>
                                         )}
                                     </div>
@@ -73,7 +81,7 @@ const MyCatCard = ({ cat, isOwner, onAdoptSelect }) => {
                     </ul>
                 )}
 
-                {cat.contacts.length > 3 && (
+                {Array.isArray(cat.contacts) && cat.contacts.length > 3 && (
                     <div className="text-end mt-2">
                         <small className="text-muted">
                             +{cat.contacts.length - 3} contactos más en el perfil del michi
