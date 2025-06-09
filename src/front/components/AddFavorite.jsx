@@ -122,7 +122,7 @@ export const AddFavorite = ({ michiId }) => {
     return (
         <button
             onClick={handleToggleFavorite}
-            className={`btn btn-sm ${isCurrentlyFavorite ? "btn-warning" : "btn-outline-warning"}`}
+            className={`btn btn-sm ${isCurrentlyFavorite ? "btn-light" : "btn-outline-light"}`}
             disabled={loading} // El botón se deshabilita mientras la operación está en curso
             title={isCurrentlyFavorite ? "Quitar de favoritos" : "Añadir a favoritos"} // Título al pasar el mouse
         >

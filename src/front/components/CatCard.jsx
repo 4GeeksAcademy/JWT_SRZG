@@ -17,15 +17,14 @@ const CatCard = ({ cat }) => {
 
   return (
     <div
-      className="card m-2 shadow-sm border-0"
+      className="card m-2 shadow-sm "
       style={{ width: "14rem", height: "350px", cursor: "pointer", position: "relative", backgroundColor: '#C1E1C1' }}
       onClick={handleClick}
     >
-      {/* Imagen con borde azul */}
-      <div style={{ borderRadius: "10px", overflow: "hidden" }}>
+      <div className="p-1" style={{ overflow: "hidden" }}>
         <img
           src={imageUrl}
-          className="card-img-top mt-1"
+          className="d-block w-100"
           alt={`Foto de ${cat.name}`}
           style={{ height: "160px", objectFit: "cover" }}
         />
