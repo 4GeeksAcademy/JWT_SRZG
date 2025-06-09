@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
+import useGlobalReducer from "../hooks/useGlobalReducer";
 
 const ReviewForm = () => {
+    const { store, dispatch } = useGlobalReducer();
     const [searchParams] = useSearchParams();
     const targetUserId = searchParams.get("target");
     const michiId = searchParams.get("michi");
@@ -57,6 +59,19 @@ const ReviewForm = () => {
             const data = await res.json();
 
             if (res.ok) {
+                dispatch({
+                    type: "add_sent_review",
+                    payload: {
+                        id: data.id,
+                        target_user_id: targetUserId,
+                        sender_user_id: store.userData.id, // Asume que está guardado
+                        review: {
+                            rating: rating,
+                            comment: comment
+                        }
+                    }
+                });
+
                 setAlert({ type: "success", message: "¡Valoración enviada con éxito!" });
                 setTimeout(() => navigate("/private?section=ratings"), 2000);
             } else {
