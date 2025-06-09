@@ -88,7 +88,7 @@ export const Favorites = () => {
                             return (
                                 <div key={favorite.id} className="col mb-4">
                                     <div className="card h-100 shadow-sm p-1"
-                                        style={{ backgroundColor: '#C1E1C1' }}>
+                                        style={{ backgroundColor: '#F8F8F7' }}>
                                         <img
                                             src={imageUrl}
                                             className="mt-2"
