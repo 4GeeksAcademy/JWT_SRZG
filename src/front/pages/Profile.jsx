@@ -9,6 +9,7 @@ import MyCatCard from "../components/MyCatCard";
 import AdoptedCatCard from "../components/AdoptedCatCard";
 import ProfileMenu from "../components/ProfileMenu";
 import { AgregarGato } from "../components/AgregarGato";
+import defaultProfilePlaceholder from '../assets/img/placeholder-perfil.jpg';
 
 export const Profile = () => {
     const [activeSection, setActiveSection] = useState('profile');
@@ -216,7 +217,7 @@ export const Profile = () => {
                         <div className="p-3 m-3">
                             <div className="d-flex justify-content-center">
                                 <img
-                                    src={userData.profile_picture}
+                                    src={userData.profile_picture ? userData.profile_picture : defaultProfilePlaceholder}
                                     alt="User Profile"
                                     className="rounded-circle ms-3"
                                     style={{ width: '80px', height: '80px', objectFit: 'cover' }}
@@ -227,7 +228,7 @@ export const Profile = () => {
                             <ProfileMenu onSelect={setActiveSection} />
                         </div>
                     )}
-                    {activeSection === 'add-cat' && <AgregarGato />} 
+                    {activeSection === 'add-cat' && <AgregarGato />}
                     {activeSection === 'my-cats' && (
                         <>
                             <h2 className="text-center mt-4">Mis Michis sin adoptar</h2>

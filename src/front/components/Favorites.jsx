@@ -74,7 +74,7 @@ export const Favorites = () => {
                     <h1 className="text-center mb-4">Mis Michis Favoritos</h1>
                     <div className="text-center">
                         {userFavorites.length === 0 ? (
-                            <p>Aún no tienes ningún Michi en tus favoritos. <Link to="/cats" className="btn btn-link">Explorar Michis</Link></p>
+                            <p>Aún no tienes ningún Michi en tus favoritos. <Link to="/" className="btn btn-link">Explorar Michis</Link></p>
                         ) : (
                             <h2>Aquí están tus Michis favoritos</h2>
                         )}
