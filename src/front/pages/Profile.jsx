@@ -2,40 +2,44 @@ import React, { useState, useEffect, useCallback } from "react";
 import { Favorites } from "../components/Favorites";
 import { Ratings } from "../components/Ratings";
 import { MyData } from "../components/MyData";
-import useGlobalReducer from "../hooks/useGlobalReducer";
 import { EditProfile } from "../components/EditProfile";
-import { useLocation, useNavigate } from "react-router-dom";
 import MyCatCard from "../components/MyCatCard";
 import AdoptedCatCard from "../components/AdoptedCatCard";
 import ProfileMenu from "../components/ProfileMenu";
 import { AgregarGato } from "../components/AgregarGato";
+import useGlobalReducer from "../hooks/useGlobalReducer";
+import { useLocation, useNavigate } from "react-router-dom";
 
 export const Profile = () => {
     const [activeSection, setActiveSection] = useState('profile');
     const [dataPhoto, setDataPhoto] = useState(null);
-    const [myCats, setMyCats] = useState([]);
-    const [catsAdopted, setCatsAdopted] = useState([]);
-    const [catsGivenWithAdoptant, setCatsGivenWithAdoptant] = useState([]);
-    const [sentReviews, setSentReviews] = useState([]);
-    const [receivedReviews, setReceivedReviews] = useState([]);
-    const navigate = useNavigate();
-
-    const token = localStorage.getItem('token');
     const { store, dispatch } = useGlobalReducer();
-    const { userData } = store;
+    const { userData, myCats, adoptedCats, givenCatsWithAdoptant, sentReviews, receivedReviews } = store;
+    const navigate = useNavigate();
     const location = useLocation();
+    const token = localStorage.getItem('token');
 
-    const adoptedCats = myCats.filter(cat =>
-        cat.contacts.some(contact => contact.is_selected)
-    );
+    const unadoptedCats = Array.isArray(myCats)
+        ? myCats.filter(cat => !Array.isArray(cat.contacts) || !cat.contacts.some(c => c.is_selected))
+        : [];
 
-    const unadoptedCats = myCats.filter(cat =>
-        !cat.contacts.some(contact => contact.is_selected)
-    );
+    const fetchGivenCats = async () => {
+        try {
+            const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/user/given-cats-with-adoptant`, {
+                headers: { Authorization: `Bearer ${token}` }
+            });
+            const data = await res.json();
+            if (res.ok) {
+                dispatch({ type: "set_given_cats_with_adoptant", payload: data });
+            }
+        } catch (err) {
+            console.error("Error al actualizar gatos dados:", err);
+        }
+    };
 
     const handleAdoptSelect = async (catId, userId) => {
         try {
-            const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/cats/${catId}/adopt/${userId}`, {
+            const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/cats/${catId}/adopt/${userId}`, {
                 method: "PATCH",
                 headers: {
                     "Authorization": `Bearer ${token}`,
@@ -43,23 +47,15 @@ export const Profile = () => {
                 },
             });
 
-            const data = await response.json();
+            const data = await res.json();
 
-            if (response.ok) {
-                setMyCats(prevCats =>
-                    prevCats.map(cat =>
-                        cat.cat_id === catId
-                            ? {
-                                ...cat,
-                                contacts: cat.contacts.map(contact =>
-                                    contact.contactor_id === userId
-                                        ? { ...contact, is_selected: true }
-                                        : { ...contact, is_selected: false }
-                                ),
-                            }
-                            : cat
-                    )
-                );
+            if (res.ok) {
+                dispatch({
+                    type: "update_cat_adoptant",
+                    payload: { catId, contactorId: userId }
+                });
+
+                fetchGivenCats();
             } else {
                 alert(data.error || "No se pudo marcar como adoptante");
             }
@@ -74,31 +70,28 @@ export const Profile = () => {
 
     const hasReviewed = (targetId, michiId) => {
         return sentReviews.some(review =>
-            Number(review.target_user_id) === Number(targetId) && Number(review.michi_id) === Number(michiId)
+            Number(review.target_user_id) === Number(targetId) &&
+            Number(review.michi_id) === Number(michiId)
         );
     };
 
     const fetchUserFavorites = useCallback(async () => {
         if (!token) {
-            console.warn("No hay token de autenticación para cargar favoritos en el perfil. Redirigiendo a login.");
-            dispatch({ type: "set_user_favorites", payload: [] }); // Limpia favoritos en el store
-            navigate('/login'); // Redirige si no hay token
+            dispatch({ type: "set_user_favorites", payload: [] });
+            navigate('/login');
             return;
         }
 
         try {
-            const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/favorites`, {
-                method: 'GET',
+            const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/favorites`, {
                 headers: {
                     "Content-Type": "application/json",
                     "Authorization": `Bearer ${token}`
                 }
             });
 
-            if (!response.ok) {
-                console.error("Error al cargar favoritos en el perfil:", response.status, response.statusText);
-                if (response.status === 401) {
-                    console.log("Token expirado o inválido. Limpiando token y redirigiendo a login.");
+            if (!res.ok) {
+                if (res.status === 401) {
                     localStorage.removeItem('token');
                     dispatch({ type: "set_user_favorites", payload: [] });
                     navigate('/login');
@@ -106,21 +99,14 @@ export const Profile = () => {
                 return;
             }
 
-            const favoritesData = await response.json();
-            console.log("Favoritos del usuario cargados en Profile:", favoritesData);
-            dispatch({ type: "set_user_favorites", payload: favoritesData }); // Guarda en el store global
-
-        } catch (error) {
-            console.error("Error de red al cargar favoritos en Profile:", error);
+            const favorites = await res.json();
+            dispatch({ type: "set_user_favorites", payload: favorites });
+        } catch (err) {
+            console.error("Error cargando favoritos:", err);
         }
     }, [token, dispatch, navigate]);
 
-
-    useEffect(() => {
-        fetchUserFavorites();
-    }, [fetchUserFavorites]);
-
-
+    useEffect(() => { fetchUserFavorites(); }, [fetchUserFavorites]);
 
     useEffect(() => {
         const fetchAdoptionData = async () => {
@@ -134,18 +120,12 @@ export const Profile = () => {
                     fetch(`${import.meta.env.VITE_BACKEND_URL}/api/user/${userData.id}/reviews`, { headers })
                 ]);
 
-                const adoptedData = adoptedRes.ok ? await adoptedRes.json() : [];
-                const givenData = givenRes.ok ? await givenRes.json() : [];
-                const sentData = sentRes.ok ? await sentRes.json() : [];
-                const receivedData = receivedRes.ok ? await receivedRes.json() : [];
-
-                setCatsAdopted(adoptedData);
-                setCatsGivenWithAdoptant(givenData);
-                setSentReviews(sentData);
-                setReceivedReviews(receivedData);
-
+                dispatch({ type: "set_adopted_cats", payload: adoptedRes.ok ? await adoptedRes.json() : [] });
+                dispatch({ type: "set_given_cats_with_adoptant", payload: givenRes.ok ? await givenRes.json() : [] });
+                dispatch({ type: "set_sent_reviews", payload: sentRes.ok ? await sentRes.json() : [] });
+                dispatch({ type: "set_received_reviews", payload: receivedRes.ok ? await receivedRes.json() : [] });
             } catch (err) {
-                console.error("Error al obtener información de adopciones o valoraciones:", err);
+                console.error("Error obteniendo adopciones y valoraciones:", err);
             }
         };
 
@@ -157,23 +137,22 @@ export const Profile = () => {
             if (!token) return;
 
             try {
-                const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/userinfo`, {
-                    method: 'GET',
+                const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/userinfo`, {
                     headers: {
                         'Content-Type': 'application/json',
                         'Authorization': `Bearer ${token}`
                     }
                 });
 
-                if (response.ok) {
-                    const data = await response.json();
+                if (res.ok) {
+                    const data = await res.json();
                     dispatch({ type: "set_user_data", payload: data.user });
                     setDataPhoto(data.profilePicture);
                 } else {
-                    console.error("Error al obtener la información del usuario:", response.status, await response.text());
+                    console.error("Error al obtener info usuario:", res.status, await res.text());
                 }
             } catch (err) {
-                console.error("Error de conexión al obtener la información del usuario:", err);
+                console.error("Error red usuario:", err);
             }
         };
 
@@ -181,22 +160,21 @@ export const Profile = () => {
     }, [token]);
 
     useEffect(() => {
-        const params = new URLSearchParams(location.search);
-        const section = params.get("section");
+        const section = new URLSearchParams(location.search).get("section");
         if (section) setActiveSection(section);
     }, [location]);
 
     useEffect(() => {
         const fetchMyCats = async () => {
             try {
-                const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/cats-contacted`, {
+                const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/cats-contacted`, {
                     headers: { Authorization: `Bearer ${token}` },
                 });
 
-                const data = await response.json();
-                setMyCats(data);
+                const data = await res.json();
+                dispatch({ type: "set_my_cats", payload: data });
             } catch (err) {
-                console.error("Error al obtener los gatos del usuario:", err);
+                console.error("Error cargando gatos del usuario:", err);
             }
         };
 
@@ -206,12 +184,12 @@ export const Profile = () => {
     return (
         <div className="container py-5">
             {token ? (
-                <div>
+                <>
                     {activeSection === 'favorites' && <Favorites />}
                     {activeSection === 'ratings' && <Ratings sentReviews={sentReviews} receivedReviews={receivedReviews} />}
                     {activeSection === 'my-data' && <MyData onEditClick={() => setActiveSection('edit-profile')} />}
                     {activeSection === 'edit-profile' && <EditProfile />}
-
+                    {activeSection === 'add-cat' && <AgregarGato />}
                     {activeSection === 'profile' && (
                         <div className="p-3 m-3">
                             <div className="d-flex justify-content-center">
@@ -227,7 +205,7 @@ export const Profile = () => {
                             <ProfileMenu onSelect={setActiveSection} />
                         </div>
                     )}
-                    {activeSection === 'add-cat' && <AgregarGato />} 
+
                     {activeSection === 'my-cats' && (
                         <>
                             <h2 className="text-center mt-4">Mis Michis sin adoptar</h2>
@@ -235,7 +213,7 @@ export const Profile = () => {
                                 <p className="text-center text-muted">No tienes michis sin adoptar.</p>
                             ) : (
                                 <div className="row">
-                                    {unadoptedCats.map(cat => (
+                                    {unadoptedCats.map((cat) => (
                                         <div key={cat.cat_id} className="col-12 col-sm-6 col-md-4 col-lg-3 mb-4">
                                             <MyCatCard cat={cat} isOwner={true} onAdoptSelect={handleAdoptSelect} />
                                         </div>
@@ -243,17 +221,15 @@ export const Profile = () => {
                                 </div>
                             )}
 
-                            {catsGivenWithAdoptant.length > 0 && (
+                            {givenCatsWithAdoptant.length > 0 && (
                                 <div className="mb-5">
                                     <h3 className="text-center mb-3">Tus michis adoptados por otros</h3>
                                     <div className="row">
-                                        {catsGivenWithAdoptant.map(cat => (
+                                        {givenCatsWithAdoptant.map((cat) => (
                                             <div key={cat.cat_id} className="col-md-4 mb-4">
                                                 <AdoptedCatCard
-                                                    catName={cat.cat_name}
-                                                    photo={cat.photo}
+                                                    cat={cat}
                                                     userLabel="Adoptante"
-                                                    nickname={cat.adoptant_nickname}
                                                     onRate={() => goToReview(cat.adoptant_id, cat.cat_id)}
                                                     showRateButton={!hasReviewed(cat.adoptant_id, cat.cat_id)}
                                                 />
@@ -263,26 +239,26 @@ export const Profile = () => {
                                 </div>
                             )}
 
-                            {catsAdopted.length > 0 && (
-                                <div className="row mb-5">
+                            {adoptedCats.length > 0 && (
+                                <div className="mb-5">
                                     <h3 className="text-center mb-3">Has adoptado estos michis</h3>
-                                    {catsAdopted.map(cat => (
-                                        <div key={cat.cat_id} className="col-md-4 mb-4">
-                                            <AdoptedCatCard
-                                                catName={cat.cat_name}
-                                                photo={cat.photo}
-                                                userLabel="Dueño anterior"
-                                                nickname={cat.owner_nickname}
-                                                onRate={() => goToReview(cat.owner_id, cat.cat_id)}
-                                                showRateButton={!hasReviewed(cat.owner_id, cat.cat_id)}
-                                            />
-                                        </div>
-                                    ))}
+                                    <div className="row">
+                                        {adoptedCats.map((cat) => (
+                                            <div key={cat.cat_id} className="col-md-4 mb-4">
+                                                <AdoptedCatCard
+                                                    cat={cat}
+                                                    userLabel="Dueño anterior"
+                                                    onRate={() => goToReview(cat.owner_id, cat.cat_id)}
+                                                    showRateButton={!hasReviewed(cat.owner_id, cat.cat_id)}
+                                                />
+                                            </div>
+                                        ))}
+                                    </div>
                                 </div>
                             )}
                         </>
                     )}
-                </div>
+                </>
             ) : (
                 <p className="text-danger">No tienes acceso. Inicia sesión primero.</p>
             )}

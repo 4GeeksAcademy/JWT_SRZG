@@ -1,13 +1,15 @@
 import React, { useState } from "react";
 import ContactModal from "./ContactModal";
 import defaultProfileImg from "../assets/img/default_profile.png";
+import useGlobalReducer from "../hooks/useGlobalReducer";
 
 const MyCatCard = ({ cat, isOwner, onAdoptSelect }) => {
     const [selectedContact, setSelectedContact] = useState(null);
     const [showModal, setShowModal] = useState(false);
+    const { dispatch } = useGlobalReducer();
 
-    const alreadyHasAdoptant = Array.isArray(cat.contacts) && cat.contacts.some(contact => contact.is_selected);
-
+    const alreadyHasAdoptant =
+        Array.isArray(cat.contacts) && cat.contacts.some(c => c.is_selected);
 
     const handleOpenModal = (contact) => {
         setSelectedContact(contact);
@@ -20,18 +22,14 @@ const MyCatCard = ({ cat, isOwner, onAdoptSelect }) => {
     };
 
     const handleMarkAsAdoptant = (contactorId) => {
-        if (onAdoptSelect) {
-            onAdoptSelect(cat.cat_id, contactorId);
-        }
+        if (onAdoptSelect) onAdoptSelect(cat.cat_id, contactorId);
     };
 
     const recentContacts = Array.isArray(cat.contacts)
-        ? cat.contacts
-            .slice()
+        ? [...cat.contacts]
             .sort((a, b) => new Date(b.contacted_at) - new Date(a.contacted_at))
             .slice(0, 3)
         : [];
-
 
     return (
         <div className="card h-100">
@@ -42,9 +40,8 @@ const MyCatCard = ({ cat, isOwner, onAdoptSelect }) => {
                 ) : (
                     <ul className="list-group list-group-flush">
                         {recentContacts.map((contact, index) => (
-                            <li key={index} className="list-group-item">
+                            <li key={contact.contactor_id || index} className="list-group-item">
                                 <div className="d-flex align-items-center justify-content-between">
-
                                     <div className="d-flex align-items-center gap-3">
                                         <img
                                             src={contact.profile_picture || defaultProfileImg}
@@ -63,7 +60,7 @@ const MyCatCard = ({ cat, isOwner, onAdoptSelect }) => {
                                             onClick={() => handleOpenModal(contact)}
                                             title="Ver Datos de usuario"
                                         >
-                                            <i class="fas fa-address-card"></i>
+                                            <i className="fas fa-address-card"></i>
                                         </button>
                                         {isOwner && !alreadyHasAdoptant && !contact.is_selected && (
                                             <button
@@ -71,7 +68,7 @@ const MyCatCard = ({ cat, isOwner, onAdoptSelect }) => {
                                                 onClick={() => handleMarkAsAdoptant(contact.contactor_id)}
                                                 title="Marcar como adoptante"
                                             >
-                                                <i class="fas fa-handshake"></i>
+                                                <i className="fas fa-handshake"></i>
                                             </button>
                                         )}
                                     </div>
