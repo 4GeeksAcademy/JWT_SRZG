@@ -23,7 +23,7 @@
   width: 150px; /* Tamaño del círculo */
   height: 150px;
   /* border: 12px solid #f3f3f3; */ /* Color de la parte "inactiva" */
-  border-top: 8px solid #53d6ba; /* Color de la parte "activa" (azul de Bootstrap) */
+  border-top: 8px solid #009ee2; /* Color de la parte "activa" (azul de Bootstrap) */
   border-radius: 50%; /* Hace que sea un círculo */
   position: absolute; /* Para que quede en el centro de #loader-container */
   animation: spin 1s linear infinite; /* ¡Aquí la animación de rotación! */
