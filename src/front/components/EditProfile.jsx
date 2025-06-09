@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react";
 import useGlobalReducer from "../hooks/useGlobalReducer";
 import { useNavigate } from "react-router-dom";
+import { Spinner } from "./spiner/Spinner";
+
 
 
 export const EditProfile = () => {
@@ -15,6 +17,7 @@ export const EditProfile = () => {
     const [dni, setDni] = useState("");
     const [phone, setPhone] = useState("");
     const [direction, setDirection] = useState("");
+    const [isLoading, setIsLoading] = useState("");
 
     const navigate = useNavigate();
     const token = localStorage.getItem('token');
@@ -83,7 +86,6 @@ export const EditProfile = () => {
             });
 
             if (response.ok) {
-
                 const data = await response.json();
                 dispatch({ type: "set_user_data", payload: data });
                 console.log("Perfil actualizado con éxito:", data);
@@ -99,37 +101,56 @@ export const EditProfile = () => {
 
     const handleChangeProfilePicture = async (e) => {
         e.preventDefault()
+        setIsLoading(true);
+
         const formData = new FormData(e.target) /* elemento del DOM que desencadena el evento */
 
 
 
-        const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/profilepicture`, {
-            method: 'PUT',
-            headers: {
-                'Authorization': `Bearer ${token}`
-            },
-            body: formData
-        });
+        try {
+            const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/profilepicture`, {
+                method: 'PUT',
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                },
+                body: formData
+            });
 
-        if (response.ok) {
-            const responseData = await response.json()
-            const newProfilePictureUrl = responseData.profilePicture[0]
-            console.log(newProfilePictureUrl)
-            const updatedUserData = {
-                ...userData,
-                profile_picture: newProfilePictureUrl
+            if (response.ok) {
+                const responseData = await response.json()
+                const newProfilePictureUrl = responseData.profilePicture[0]
+                console.log(newProfilePictureUrl)
+                const updatedUserData = {
+                    ...userData,
+                    profile_picture: newProfilePictureUrl
+                }
+                dispatch({ type: "set_user_data", payload: updatedUserData });
+                navigate('/private?section=profile')
+                console.log("Foto de perfil actualizada y store global actualizado:", updatedUserData);
+                return;
+
+            } else {
+                console.error("Error al actualizar la foto de perfil:", response.status, await response.text());
             }
-            dispatch({ type: "set_user_data", payload: updatedUserData });
-            navigate('/private?section=profile')
-            console.log("Foto de perfil actualizada y store global actualizado:", updatedUserData);
-            return;
 
+        } catch (err) {
+            console.error("Error de conexión al actualizar la foto de perfil:", err);
+        } finally {
+            setIsLoading(false);
+            /* // Este bloque se ejecuta siempre, ya sea que la operación fue exitosa o falló.
+            // Usamos setTimeout para que el spinner dure al menos 3 segundos.
+            setTimeout(() => {
+                setIsLoading(false); // ¡Desactiva el spinner después del retardo!
+            }, 3000); // 3000 milisegundos = 3 segundos */
         }
+
+
     }
 
 
     return (
         <div className="register-container d-flex flex-column justify-content-center align-items-center ">
+            {isLoading && <Spinner />}
             <div className="register-form col-8 p-8 mt-5 mb-5">
 
                 <form onSubmit={handleSubmit} className="p-4 bg-light rounded shadow">

@@ -9,6 +9,8 @@ import ProfileMenu from "../components/ProfileMenu";
 import { AgregarGato } from "../components/AgregarGato";
 import useGlobalReducer from "../hooks/useGlobalReducer";
 import { useLocation, useNavigate } from "react-router-dom";
+import defaultProfilePlaceholder from '../assets/img/placeholder-perfil.jpg';
+
 
 export const Profile = () => {
     const [activeSection, setActiveSection] = useState('profile');
@@ -194,7 +196,7 @@ export const Profile = () => {
                         <div className="p-3 m-3">
                             <div className="d-flex justify-content-center">
                                 <img
-                                    src={userData.profile_picture}
+                                    src={userData.profile_picture ? userData.profile_picture : defaultProfilePlaceholder}
                                     alt="User Profile"
                                     className="rounded-circle ms-3"
                                     style={{ width: '80px', height: '80px', objectFit: 'cover' }}
