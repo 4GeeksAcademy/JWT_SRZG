@@ -2,22 +2,27 @@ import React, { useState, useEffect, useCallback } from "react";
 import useGlobalReducer from "../hooks/useGlobalReducer";
 import { Link, useNavigate } from "react-router-dom";
 import { AddFavorite } from "./AddFavorite";
+import defaultMichiPlaceholder from '../assets/img/default_profile.png';
+import { Spinner } from "./spiner/Spinner";
 
 export const Favorites = () => {
     const { store, dispatch } = useGlobalReducer();
-    const { userData, userFavorites } = store;
-    const token = localStorage.getItem('token');
-
+    const { userFavorites } = store;
     const navigate = useNavigate();
 
+    const [loading, setLoading] = useState(true); // Asume que carga al inicio
+    const [error, setError] = useState(null);
 
-    const defaultMichiImg = 'https://media.istockphoto.com/id/519497396/es/vector/cara-de-gato-negro.jpg?s=612x612&w=0&k=20&c=0ic3dvnWbMOIq1TrDVLDB6_T_Jez3jpS33sUR5Y31Ag='
 
+    const defaultMichiImg = defaultMichiPlaceholder;
 
 
 
     const fetchLoadingFavorites = useCallback(async () => {
+        setLoading(true);
+
         const token = localStorage.getItem("token"); // Obtén el token aquí
+
         if (!token) {
             setError("No hay token de autenticación. Por favor, inicia sesión.");
             setLoading(false);
@@ -48,66 +53,76 @@ export const Favorites = () => {
 
         } catch (error) {
             console.error("Error fetching favorites:", error);
+        } finally {
+            // Este bloque se ejecuta SIEMPRE, ya sea que try o catch ocurran.
+            // Es crucial para ocultar el spinner.
+            setLoading(false);
         }
     }, [dispatch, navigate]);
+
+    useEffect(() => {
+        fetchLoadingFavorites();
+    }, [fetchLoadingFavorites]);
 
 
     return (
         <div>
-            <div className="container mt-5">
-                <h1 className="text-center mb-4">Mis Michis Favoritos</h1>
-                <div className="text-center">
-                    {userFavorites.length === 0 ? (
-                        <p>Aún no tienes ningún Michi en tus favoritos. <Link to="/some-michi-list-page" className="btn btn-link">Explorar Michis</Link></p>
-                    ) : (
-                        <h2>Aquí están tus Michis favoritos</h2>
-                    )}
-                </div>
-                <div className="row row-cols-1 row-cols-md-3 g-4 justify-content-center">
-                    {userFavorites.map(favorite => {
-                        const michi = favorite.michi_details;
-                        const imageUrl = michi.photos[0] ? michi.photos[0] : defaultMichiImg;
+            {loading && <Spinner />}
 
-                        return (
-                            <div key={favorite.id} className="col">
-                                <div className="card h-100 shadow-sm">
-                                    <img
-                                        src={imageUrl}
-                                        className="card-img-top"
-                                        alt={`Foto de ${michi.name}`}
-                                        style={{ height: '200px', objectFit: 'cover' }}
-                                    />
-                                    <div className="card-body d-flex flex-column justify-content-between">
-                                        <div>
-                                            <h5 className="card-title text-center mb-2">{michi.name || `Michi ID: ${michi.id}`}</h5>
-                                            {michi.breed && <p className="card-text">Raza: {michi.breed}</p>}
-                                            {michi.age && <p className="card-text">Edad: {michi.age} años</p>}
-                                            {michi.description && <p className="card-text text-muted small">{michi.description}</p>}
-                                        </div>
-                                        <div className="d-grid gap-2 mt-auto">
-                                            <div
-                                                className="position-absolute"
-                                                style={{
-                                                    bottom: "10px",
-                                                    right: "10px",
-                                                }}
-                                                onClick={(e) => e.stopPropagation()}
-                                            >
-                                                <AddFavorite michiId={michi.id} />
+            {!loading && (
+                <div className="container mt-5">
+                    <h1 className="text-center mb-4">Mis Michis Favoritos</h1>
+                    <div className="text-center">
+                        {userFavorites.length === 0 ? (
+                            <p>Aún no tienes ningún Michi en tus favoritos. <Link to="/cats" className="btn btn-link">Explorar Michis</Link></p>
+                        ) : (
+                            <h2>Aquí están tus Michis favoritos</h2>
+                        )}
+                    </div>
+                    <div className="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-3 justify-content-center">
+                        {userFavorites.map(favorite => {
+                            const michi = favorite.michi_details;
+                            // Usando el operador de encadenamiento opcional para mayor seguridad
+                            const imageUrl = michi?.photos?.[0]?.foto || defaultMichiImg;
+
+                            return (
+                                <div key={favorite.id} className="col mb-4">
+                                    <div className="card h-100 shadow-sm p-1"
+                                        style={{ backgroundColor: '#F8F8F7' }}>
+                                        <img
+                                            src={imageUrl}
+                                            className="mt-2"
+                                            alt={`Foto de ${michi.name}`}
+                                            style={{ height: '250px', objectFit: 'cover' }}
+                                        />
+                                        <div className="card-body d-flex flex-column justify-content-between">
+                                            <div>
+                                                <h5 className="card-title text-center mb-2">{michi.name || `Michi ID: ${michi.id}`}</h5>
+                                                <hr />
+                                                {michi.breed && <p className="card-text">Raza: {michi.breed}</p>}
+                                                {michi.age && <p className="card-text">Edad: {michi.age} años</p>}
+                                                {michi.description && <p className="card-text text-muted small">{michi.description}</p>}
                                             </div>
-
-                                            {/* Opcional: Enlace para ver los detalles completos del Michi */}
-                                            {/* <Link to={`/michi/${michi.id}`} className="btn btn-outline-primary btn-sm">
-                                            Ver Detalles
-                                        </Link> */}
+                                            <div className="d-grid gap-2 mt-auto">
+                                                <div
+                                                    className="position-absolute"
+                                                    style={{
+                                                        bottom: "10px",
+                                                        right: "10px",
+                                                    }}
+                                                    onClick={(e) => e.stopPropagation()}
+                                                >
+                                                    <AddFavorite michiId={michi.id} />
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
-                            </div>
-                        );
-                    })}
+                            );
+                        })}
+                    </div>
                 </div>
-            </div>
+            )}
         </div>
     );
 };
