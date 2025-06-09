@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback } from "react";
 import useGlobalReducer from "../hooks/useGlobalReducer";
 import { Link, useNavigate } from "react-router-dom";
 import { AddFavorite } from "./AddFavorite";
+import defaultMichiPlaceholder from '../assets/img/default_profile.png';
 
 export const Favorites = () => {
     const { store, dispatch } = useGlobalReducer();
@@ -11,8 +12,7 @@ export const Favorites = () => {
     const navigate = useNavigate();
 
 
-    const defaultMichiImg = 'https://media.istockphoto.com/id/519497396/es/vector/cara-de-gato-negro.jpg?s=612x612&w=0&k=20&c=0ic3dvnWbMOIq1TrDVLDB6_T_Jez3jpS33sUR5Y31Ag='
-
+    const defaultMichiImg = defaultMichiPlaceholder;
 
 
 
@@ -73,9 +73,9 @@ export const Favorites = () => {
                                 <div className="card h-100 shadow-sm">
                                     <img
                                         src={imageUrl}
-                                        className="card-img-top"
+                                        className="card-img-top mt-2"
                                         alt={`Foto de ${michi.name}`}
-                                        style={{ height: '200px', objectFit: 'cover' }}
+                                        style={{ height: '250px', objectFit: 'cover' }}
                                     />
                                     <div className="card-body d-flex flex-column justify-content-between">
                                         <div>

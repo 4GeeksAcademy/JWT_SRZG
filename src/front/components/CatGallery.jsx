@@ -38,10 +38,11 @@ export const CatGallery = () => {
   return (
     <div className="container py-4">
       <h2 className="text-center mb-4 fw-bold fs-2">¡NUESTROS MICHIS!</h2>
+      <hr />
 
-      <div className="row justify-content-center">
+      <div className="row justify-content-center g-1">
         {currentCats.map((cat) => (
-          <div key={cat.id} className="col-6 col-md-4 d-flex justify-content-center">
+          <div key={cat.id} className="col-12 col-ms-6 col-md-4 col-lg-3 d-flex justify-content-center mb-4">
             <CatCard cat={cat} />
           </div>
         ))}
