@@ -12,6 +12,7 @@ export const CatGallery = () => {
       try {
         const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/cats/`);
         if (!response.ok) throw new Error("Error al obtener los gatos");
+        
 
         const data = await response.json();
 

@@ -81,8 +81,8 @@ export const Profile = () => {
     const fetchUserFavorites = useCallback(async () => {
         if (!token) {
             console.warn("No hay token de autenticación para cargar favoritos en el perfil. Redirigiendo a login.");
-            dispatch({ type: "set_user_favorites", payload: [] }); // Limpia favoritos en el store
-            navigate('/login'); // Redirige si no hay token
+            dispatch({ type: "set_user_favorites", payload: [] });
+            navigate('/login');
             return;
         }
 
@@ -108,19 +108,16 @@ export const Profile = () => {
 
             const favoritesData = await response.json();
             console.log("Favoritos del usuario cargados en Profile:", favoritesData);
-            dispatch({ type: "set_user_favorites", payload: favoritesData }); // Guarda en el store global
+            dispatch({ type: "set_user_favorites", payload: favoritesData });
 
         } catch (error) {
             console.error("Error de red al cargar favoritos en Profile:", error);
         }
     }, [token, dispatch, navigate]);
 
-
     useEffect(() => {
         fetchUserFavorites();
     }, [fetchUserFavorites]);
-
-
 
     useEffect(() => {
         const fetchAdoptionData = async () => {
@@ -186,20 +183,20 @@ export const Profile = () => {
         if (section) setActiveSection(section);
     }, [location]);
 
+    const fetchMyCats = async () => {
+        try {
+            const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/cats-contacted`, {
+                headers: { Authorization: `Bearer ${token}` },
+            });
+
+            const data = await response.json();
+            setMyCats(data);
+        } catch (err) {
+            console.error("Error al obtener los gatos del usuario:", err);
+        }
+    };
+
     useEffect(() => {
-        const fetchMyCats = async () => {
-            try {
-                const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/cats-contacted`, {
-                    headers: { Authorization: `Bearer ${token}` },
-                });
-
-                const data = await response.json();
-                setMyCats(data);
-            } catch (err) {
-                console.error("Error al obtener los gatos del usuario:", err);
-            }
-        };
-
         fetchMyCats();
     }, [token]);
 
@@ -227,19 +224,26 @@ export const Profile = () => {
                             <ProfileMenu onSelect={setActiveSection} />
                         </div>
                     )}
-                    {activeSection === 'add-cat' && <AgregarGato />} 
+                    {activeSection === 'add-cat' && <AgregarGato />}
                     {activeSection === 'my-cats' && (
                         <>
                             <h2 className="text-center mt-4">Mis Michis sin adoptar</h2>
-                            {unadoptedCats.length === 0 ? (
+                            {unadoptedCats.filter(cat => cat.user_id === userData.id).length === 0 ? (
                                 <p className="text-center text-muted">No tienes michis sin adoptar.</p>
                             ) : (
                                 <div className="row">
-                                    {unadoptedCats.map(cat => (
-                                        <div key={cat.cat_id} className="col-12 col-sm-6 col-md-4 col-lg-3 mb-4">
-                                            <MyCatCard cat={cat} isOwner={true} onAdoptSelect={handleAdoptSelect} />
-                                        </div>
-                                    ))}
+                                    {unadoptedCats
+                                        .filter(cat => cat.user_id === userData.id)
+                                        .map(cat => (
+                                            <div key={cat.cat_id} className="col-12 col-sm-6 col-md-4 col-lg-3 mb-4">
+                                                <MyCatCard
+                                                    cat={cat}
+                                                    currentUserId={userData.id}
+                                                    onAdoptSelect={handleAdoptSelect}
+                                                    onRefresh={fetchMyCats}
+                                                />
+                                            </div>
+                                        ))}
                                 </div>
                             )}
 
