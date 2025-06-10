@@ -1,6 +1,7 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import { AddFavorite } from "./AddFavorite";
+import defaultMichiPlaceholder from '../assets/img/default_profile.png';
 
 const CatCard = ({ cat }) => {
   const navigate = useNavigate();
@@ -12,19 +13,18 @@ const CatCard = ({ cat }) => {
 
   // Imagen del gato (o placeholder si no hay fotos)
   const imageUrl =
-    cat.photos?.[0]?.foto || "https://via.placeholder.com/300x200?text=Sin+foto";
+    cat.photos?.[0]?.foto || defaultMichiPlaceholder;
 
   return (
     <div
-      className="card m-2 shadow-sm border-0"
-      style={{ width: "14rem", height: "18rem", cursor: "pointer", position: "relative" }}
+      className="card m-2 shadow-sm "
+      style={{ width: "14rem", height: "350px", cursor: "pointer", position: "relative", backgroundColor: '#F8F8F7' }}
       onClick={handleClick}
     >
-      {/* Imagen con borde azul */}
-      <div style={{ border: "3px solid #00aaff", borderRadius: "10px", overflow: "hidden" }}>
+      <div className="p-1" style={{ overflow: "hidden" }}>
         <img
           src={imageUrl}
-          className="card-img-top"
+          className="d-block w-100"
           alt={`Foto de ${cat.name}`}
           style={{ height: "160px", objectFit: "cover" }}
         />
@@ -33,6 +33,7 @@ const CatCard = ({ cat }) => {
       {/* Información del gato */}
       <div className="card-body text-center p-2 position-relative">
         <h6 className="card-title text-uppercase fw-bold mb-1 " >{cat.name}</h6>
+        <hr />
         <p className="mb-1" style={{ fontSize: "0.85rem" }}>
           <strong>Raza:</strong> {cat.breed || "No especificada"}
         </p>
