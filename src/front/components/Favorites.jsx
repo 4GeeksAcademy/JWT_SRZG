@@ -93,7 +93,14 @@ export const Favorites = () => {
                                             src={imageUrl}
                                             className="mt-2"
                                             alt={`Foto de ${michi.name}`}
-                                            style={{ height: '250px', objectFit: 'cover' }}
+                                            style={{
+                                                height: '200px',
+                                                objectFit: 'cover',
+                                                width: '100%',
+                                                borderRadius: '8px',
+
+
+                                            }}
                                         />
                                         <div className="card-body d-flex flex-column justify-content-between">
                                             <div>

@@ -5,10 +5,12 @@ export const WelcomeBox = () => {
   return (
     <div className="bg-white rounded shadow-md text-center max-w-2xl mx-auto welcome-box"
       style={{
-        backgroundImage: `url('https://images.unsplash.com/photo-1619326229465-1942c876e17c?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MjQ3fHxjYXRvcyUyMHklMjBwZXJvc25hc3xlbnwwfHwwfHx8MA%3D%3D')`,
+        /* backgroundImage: `url('https://images.unsplash.com/photo-1619326229465-1942c876e17c?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MjQ3fHxjYXRvcyUyMHklMjBwZXJvc25hc3xlbnwwfHwwfHx8MA%3D%3D')`, */
+        backgroundImage: `url('https://images.unsplash.com/photo-1687993377657-f2fb8d53079e?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8OTd8fGdhdG9zJTIweSUyMGJlc29zJTIwcGVyc29uYXN8ZW58MHx8MHx8fDA%3D)`,
         backgroundRepeat: 'no-repeat',
         backgroundSize: 'cover',
-        backgroundPosition: 'center'
+        backgroundPosition: 'center',
+        height: '500px'
       }}>
       <h1 className="text-2xl font-bold mb-4 text-white chewy-font">
         ¡Bienvenido/a a nuestra página de adopción de Gatos!
