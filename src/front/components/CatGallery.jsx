@@ -6,17 +6,13 @@ export const CatGallery = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const catsPerPage = 9;
 
-  // Función para obtener los gatos desde la API
   useEffect(() => {
     const fetchCats = async () => {
       try {
         const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/cats/`);
         if (!response.ok) throw new Error("Error al obtener los gatos");
-        
 
         const data = await response.json();
-
-        // Asegura que el formato de la respuesta sea un arreglo
         const catsArray = Array.isArray(data) ? data : data.cats || [];
         setCats(catsArray);
       } catch (error) {
@@ -27,23 +23,29 @@ export const CatGallery = () => {
     fetchCats();
   }, []);
 
+  // Filtrar solo gatos activos
+  const activeCats = cats.filter((cat) => cat.is_active);
   const indexOfLastCat = currentPage * catsPerPage;
   const indexOfFirstCat = indexOfLastCat - catsPerPage;
-  const currentCats = cats.slice(indexOfFirstCat, indexOfLastCat);
-  const totalPages = Math.ceil(cats.length / catsPerPage);
+  const currentCats = activeCats.slice(indexOfFirstCat, indexOfLastCat);
+  
+  const totalPages = Math.ceil(activeCats.length / catsPerPage);
+ 
 
   const handlePageChange = (page) => {
     if (page >= 1 && page <= totalPages) setCurrentPage(page);
   };
 
   return (
-    <div className="container py-4 mt-5 mb-5"
+    <div
+      className="container py-4 mt-5 mb-5"
       style={{
         backgroundImage: `url('https://i.pinimg.com/1200x/15/09/de/1509de0d8bdab65ad19e63f92b5934f0.jpg')`,
-        backgroundRepeat: 'no-repeat',
-        backgroundSize: 'cover',
-        backgroundPosition: 'center'
-      }}>
+        backgroundRepeat: "no-repeat",
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+      }}
+    >
       <h2 className="text-center mb-4 fw-bold fs-2">¡NUESTROS MICHIS!</h2>
       <hr />
 

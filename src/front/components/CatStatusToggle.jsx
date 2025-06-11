@@ -26,6 +26,7 @@ const CatStatusToggle = ({ catId, isActive, onStatusChange }) => {
 
       const data = await response.json();
       console.log("Estado actualizado:", data);
+      alert(data.msg);
       onStatusChange(!isActive); // notificar al componente padre
     } catch (error) {
       console.error("Error al cambiar el estado del gato:", error.message);

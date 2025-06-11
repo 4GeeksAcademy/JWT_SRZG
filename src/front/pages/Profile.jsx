@@ -180,7 +180,7 @@ export const Profile = () => {
             }
         };
 
-    useEffect(() => {
+
         fetchMyCats();
     }, [token]);
 

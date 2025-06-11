@@ -334,7 +334,7 @@ def cat_info(cat_id):
 
 @api.route("/cats/", methods=["GET"])
 def cat_list():
-    cats = CatUser.query.all()
+    cats = CatUser.query.filter_by(is_active=True).all() 
     return jsonify({
         "cats": [cat.serialize() for cat in cats],
     }), 200
