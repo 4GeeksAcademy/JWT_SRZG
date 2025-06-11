@@ -1,28 +1,205 @@
 from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy import String, Boolean
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy import String, Integer, Float, Boolean, Text, ForeignKey, Enum, DateTime
+from datetime import datetime
+from sqlalchemy.orm import Mapped, mapped_column, relationship
+import enum
 
 db = SQLAlchemy()
 
 
 class User(db.Model):
+    __tablename__ = "user"
     id: Mapped[int] = mapped_column(primary_key=True)
+    name: Mapped[str] = mapped_column(String(40), nullable=False)
+    lastname: Mapped[str] = mapped_column(String(40), nullable=False)
+    dni: Mapped[str] = mapped_column(String(20), nullable=False)
+    nickname: Mapped[str] = mapped_column(String(40), nullable=False)
+    direction: Mapped[str] = mapped_column(String(40), nullable=False)
     email: Mapped[str] = mapped_column(
         String(120), unique=True, nullable=False)
+    phone: Mapped[str] = mapped_column(String(20), nullable=False)
     password: Mapped[str] = mapped_column(String(200), nullable=False)
-    fullname: Mapped[str] = mapped_column(String(200), nullable=False)
     is_active: Mapped[bool] = mapped_column(
         Boolean(), nullable=False, default=True)
+    rol: Mapped[str] = mapped_column(String(40), nullable=False)
+    profile_picture: Mapped[str] = mapped_column(String(500), nullable=True)
+
+    sent_reviews = relationship(
+        'UserReviewsDetails', foreign_keys='UserReviewsDetails.sender_user_id', backref='sender', lazy=True)
+    received_reviews = relationship(
+        'UserReviewsDetails', foreign_keys='UserReviewsDetails.target_user_id', backref='receiver', lazy=True)
+    favorites = relationship('Favorites', backref='user', lazy=True)
+    michis = relationship('CatUser', backref='user', lazy=True)
 
     def serialize(self):
         return {
             "id": self.id,
+            "name": self.name,
+            "lastname": self.lastname,
+            "dni": self.dni,
+            "nickname": self.nickname,
+            "direction": self.direction,
             "email": self.email,
-            "fullname": self.fullname,
-            # do not serialize the password, its a security breach
+            "phone": self.phone,
+            "rol": self.rol,
+            "profile_picture": self.profile_picture
+        }
+
+ # User reviews model group
+
+
+class UserReviews(db.Model):
+    __tablename__ = "userreviews"
+    id: Mapped[int] = mapped_column(primary_key=True)
+    user_id: Mapped[int] = mapped_column(ForeignKey('user.id'), nullable=False)
+    rating: Mapped[int] = mapped_column(nullable=False)
+    comment: Mapped[str] = mapped_column(String(300), nullable=True)
+
+    def serialize(self):
+        return {
+            "id": self.id,
+            "rating": self.rating,
+            "user_id": self.user_id,
+            "comment": self.comment
+        }
+
+
+class UserReviewsDetails(db.Model):
+    __tablename__ = "userreviewsdetails"
+    id: Mapped[int] = mapped_column(primary_key=True)
+    target_user_id: Mapped[int] = mapped_column(
+        ForeignKey('user.id'), nullable=False)
+    sender_user_id: Mapped[int] = mapped_column(
+        ForeignKey('user.id'), nullable=False)
+    review_id: Mapped[int] = mapped_column(
+        ForeignKey('userreviews.id'), nullable=False)
+    michi_id: Mapped[int] = mapped_column(
+        ForeignKey('cat_user.id'), nullable=False)
+    user_review = relationship('UserReviews', backref='details', lazy=True)
+
+    def serialize(self):
+        return {
+            "id": self.id,
+            "sender_user_id": self.sender_user_id,
+            "target_user_id": self.target_user_id,
+            "michi_id": self.michi_id,
+            "review": self.user_review.serialize() if self.user_review else None
+        }
+
+
+class Favorites(db.Model):
+    __tablename__ = "favorites"
+    id: Mapped[int] = mapped_column(primary_key=True)
+    user_id:  Mapped[int] = mapped_column(ForeignKey('user.id'))
+    michi_id: Mapped[int] = mapped_column(ForeignKey('cat_user.id'))
+
+    michi: Mapped["CatUser"] = relationship(
+        "CatUser", backref="favorites_list", lazy=True)
+
+    def serialize(self):
+        return {
+            "id": self.id,
+            "user_id": self.user_id,
+            "michi_id": self.michi_id,
+            "michi_details": self.michi.serialize() if self.michi else None
+        }
+
+# Cat Models
+
+
+class CatSex(enum.Enum):
+    male = "male"
+    female = "female"
+
+
+class CatUser(db.Model):
+    __tablename__ = "cat_user"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    name: Mapped[str] = mapped_column(String(100), nullable=False)
+    breed: Mapped[str] = mapped_column(String(100), nullable=True)
+    age: Mapped[int] = mapped_column(Integer, nullable=True)
+    weight: Mapped[float] = mapped_column(Float, nullable=True)
+    description: Mapped[str] = mapped_column(String(255), nullable=True)
+    color: Mapped[str] = mapped_column(String(100), nullable=True)
+    sex: Mapped[str] = mapped_column(String(10), nullable=True)
+    is_active: Mapped[bool] = mapped_column(Boolean, default=True)
+    user_id: Mapped[int] = mapped_column(ForeignKey('user.id'), nullable=False)
+    photos: Mapped[list["CatPhoto"]] = relationship(
+        "CatPhoto", back_populates="cat", cascade="all, delete-orphan")
+
+    def serialize(self):
+        return {
+            "id": self.id,
+            "name": self.name,
+            "breed": self.breed,
+            "age": self.age,
+            "weight": self.weight,
+            "description": self.description,
+            "color": self.color,
+            "sex": self.sex,
+            "is_active": self.is_active,
+            "user_id": self.user_id,
+            "photos": [photo.serialize() for photo in self.photos]
+        }
+
+
+class CatPhoto(db.Model):
+    __tablename__ = "cat_photo"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    foto: Mapped[str] = mapped_column(Text, nullable=True)
+
+    cat_id: Mapped[int] = mapped_column(
+        ForeignKey("cat_user.id"), nullable=False)
+    user_id: Mapped[int] = mapped_column(ForeignKey("user.id"), nullable=True)
+
+    # Relaciones
+    cat: Mapped["CatUser"] = relationship("CatUser", back_populates="photos")
+    user: Mapped["User"] = relationship("User")
+
+    def serialize(self):
+        return {
+            "id": self.id,
+            "foto": self.foto,
+            "cat_id": self.cat_id,
+            "user_id": self.user_id
+        }
+
+
+class CatContactRequest(db.Model):
+    __tablename__ = 'cat_contact_request'
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    cat_id: Mapped[int] = mapped_column(
+        ForeignKey("cat_user.id"), nullable=False)
+    contactor_id: Mapped[int] = mapped_column(
+        ForeignKey("user.id"), nullable=False)
+    owner_id: Mapped[int] = mapped_column(
+        ForeignKey("user.id"), nullable=False)
+    contacted_at = db.Column(db.DateTime, default=datetime.utcnow)
+    is_selected = db.Column(db.Boolean, default=False)
+
+    cat = relationship("CatUser", backref="contact_requests")
+    contactor = relationship("User", foreign_keys=[contactor_id])
+    owner = relationship("User", foreign_keys=[owner_id])
+
+    __table_args__ = (db.UniqueConstraint(
+        'cat_id', 'contactor_id', name='unique_contact_per_cat'),
+    )
+
+    def serialize(self):
+        return {
+            "id": self.id,
+            "cat_id": self.cat_id,
+            "contactor_id": self.contactor_id,
+            "owner_id": self.owner_id,
+            "is_selected": self.is_selected,
+            "contacted_at": self.contacted_at.isoformat() if self.contacted_at else None
         }
 
 
 class TokenBlockedList(db.Model):
+    __tablename__ = "tokenblockedlist"
     id: Mapped[int] = mapped_column(primary_key=True)
     jti: Mapped[str] = mapped_column(String(50), nullable=False)
