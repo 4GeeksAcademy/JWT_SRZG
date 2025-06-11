@@ -40,12 +40,23 @@ const UploadCatProfilePicture = ({ catId, onUploadSuccess }) => {
   };
 
   return (
-    <div className="mt-3">
-      <h6>Subir nueva foto</h6>
-      <input type="file" onChange={handleChange} className="form-control mb-2" />
-      <button onClick={handleUpload} className="btn btn-sm btn-success">
-        Subir Foto
-      </button>
+    <div className="mt-4 p-3 border rounded bg-light">
+      <h6 className="mb-2">📸 Añadir nueva foto</h6>
+      <div className="input-group">
+        <input
+          type="file"
+          accept="image/*"
+          onChange={handleChange}
+          className="form-control"
+        />
+        <button
+          onClick={handleUpload}
+          className="btn btn-success"
+          disabled={!photoFile}
+        >
+          Subir
+        </button>
+      </div>
     </div>
   );
 };

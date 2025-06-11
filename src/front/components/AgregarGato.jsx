@@ -31,7 +31,7 @@ export const AgregarGato = () => {
     e.preventDefault();
 
     try {
-      const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}api/cats`, {
+      const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/cats`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -52,7 +52,8 @@ export const AgregarGato = () => {
         const photoForm = new FormData();
         photoForm.append("CAT_PROFILE", selectedFile);
 
-        const uploadResponse = await fetch(`${import.meta.env.VITE_BACKEND_URL}api/cats/${catId}/profilepicture`, {
+        const uploadResponse = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/cats/${catId}/profilepicture`, {
+
           method: "PUT",
           headers: {
             Authorization: `Bearer ${token}`,
@@ -67,7 +68,8 @@ export const AgregarGato = () => {
       }
 
       // Obtener gato con la foto
-      const updatedCatResponse = await fetch(`${import.meta.env.VITE_BACKEND_URL}api/cats/${catId}`, {
+      const updatedCatResponse = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/cats/${catId}`, {
+
         headers: {
           Authorization: `Bearer ${token}`,
         },
