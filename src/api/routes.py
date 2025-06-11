@@ -334,7 +334,7 @@ def cat_info(cat_id):
 
 @api.route("/cats/", methods=["GET"])
 def cat_list():
-    cats = CatUser.query.all()
+    cats = CatUser.query.filter_by(is_active=True).all() 
     return jsonify({
         "cats": [cat.serialize() for cat in cats],
     }), 200
@@ -553,6 +553,7 @@ def my_cats_with_contacts():
         result.append({
             "cat_id": cat.id,
             "cat_name": cat.name,
+            "user_id": cat.user_id,
             "contacts": contact_list
         })
 
@@ -712,3 +713,37 @@ def insert_test_cats(n=10, user_id=1):
 def add_test_cats():
     insert_test_cats(n=10, user_id=1)
     return jsonify({"msg": "Gatos de prueba insertados"})
+
+
+@api.route("/cats/<int:cat_id>/toggle-active", methods=["PATCH"])
+@jwt_required()
+def toggle_cat_status(cat_id):
+    user_id = get_jwt_identity()
+    cat = CatUser.query.get(cat_id)
+
+    if not cat:
+        print(f"[ERROR] Gato con ID {cat_id} no encontrado.")
+        return jsonify({"msg": "Gato no encontrado"}), 404
+
+    print(f"[INFO] Usuario autenticado: {user_id}")
+    print(f"[INFO] Dueño del gato (cat_id={cat_id}): {cat.user_id}")
+
+    if cat.user_id != int(user_id):
+        print(
+            f"[WARNING] El usuario {user_id} no es el dueño del gato {cat_id}.")
+
+        return jsonify({"msg": "No autorizado"}), 403
+
+    body = request.get_json()
+    new_status = body.get("is_active")
+    print(f"[INFO] status: {new_status}")
+
+    if new_status is None:
+        return jsonify({"msg": "Falta el campo 'is_active'"}), 400
+
+    cat.is_active = new_status
+    db.session.commit()
+
+    print(
+        f"[SUCCESS] Gato {cat.name} (ID {cat_id}) actualizado. Nuevo estado: {new_status}")
+    return jsonify({"msg": f"Gato {'habilitado' if new_status else 'deshabilitado'} correctamente"}), 200
