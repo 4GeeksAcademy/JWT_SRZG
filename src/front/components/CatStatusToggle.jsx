@@ -4,9 +4,14 @@ import useGlobalReducer from "../hooks/useGlobalReducer";
 
 
 const CatStatusToggle = ({ catId, isActive, onStatusChange }) => {
-  const { store } = useGlobalReducer();
+  const { store, dispatch } = useGlobalReducer();
   const [loading, setLoading] = useState(false);
   const token = localStorage.getItem('token');
+  
+
+
+
+  
   const handleToggle = async () => {
     try {
       setLoading(true);
@@ -16,7 +21,7 @@ const CatStatusToggle = ({ catId, isActive, onStatusChange }) => {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`
         },
-        body: JSON.stringify({ "is_active": !isActive })  // ✅ campo correcto y bien formateado
+        body: JSON.stringify({ "is_active": isActive ? false : true })  // ✅ campo correcto y bien formateado
       })
 
       if (!response.ok) {
