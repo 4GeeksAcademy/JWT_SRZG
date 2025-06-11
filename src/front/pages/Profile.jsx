@@ -180,7 +180,6 @@ export const Profile = () => {
             }
         };
 
-
         fetchMyCats();
     }, [token]);
 
@@ -212,7 +211,7 @@ export const Profile = () => {
                     {activeSection === 'my-cats' && (
                         <>
                             <h2 className="text-center mt-4">Mis Michis sin adoptar</h2>
-                            {unadoptedCats.filter(cat => cat.user_id === userData.id).length === 0 ? (
+                            {unadoptedCats.length === 0 ? (
                                 <p className="text-center text-muted">No tienes michis sin adoptar.</p>
                             ) : (
                                 <div className="row">

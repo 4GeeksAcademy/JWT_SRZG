@@ -50,23 +50,23 @@
 
 /* Definición de la animación de rotación */
 @keyframes spin {
-  100% {
-    transform: rotate(360deg);
-  }
   0% {
     transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
   }
 }
 
 /* Definición de la animación de aparecer/desaparecer */
 @keyframes fade-in-out {
-  0% {
+  100% {
     opacity: 0;
   }
   50% {
     opacity: 1;
   }
-  100% {
+  0% {
     opacity: 0;
   }
 }

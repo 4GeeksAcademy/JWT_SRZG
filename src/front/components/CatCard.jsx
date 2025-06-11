@@ -1,32 +1,25 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import { AddFavorite } from "./AddFavorite";
-import defaultMichiPlaceholder from "../assets/img/default_profile.png";
+import defaultMichiPlaceholder from '../assets/img/default_profile.png';
 
 const CatCard = ({ cat }) => {
   const navigate = useNavigate();
 
+  // Función para redirigir al perfil del gato
   const handleClick = () => {
-    if (cat.is_active) {
-      navigate(`/cat/${cat.id}`);
-    }
+    navigate(`/cat/${cat.id}`);
   };
 
-  const imageUrl = cat.photos?.[0]?.foto || defaultMichiPlaceholder;
+  // Imagen del gato (o placeholder si no hay fotos)
+  const imageUrl =
+    cat.photos?.[0]?.foto || defaultMichiPlaceholder;
 
   return (
     <div
-      className="card m-2 shadow-sm"
-      style={{
-        width: "14rem",
-        height: "350px",
-        cursor: cat.is_active ? "pointer" : "not-allowed",
-        position: "relative",
-        backgroundColor: "#F8F8F7",
-        opacity: cat.is_active ? 1 : 0.6,
-      }}
+      className="card m-2 shadow-sm cat-card-container"
+      style={{ width: "14rem", height: "350px", cursor: "pointer", position: "relative", backgroundColor: '#F8F8F7' }}
       onClick={handleClick}
-      title={cat.is_active ? "Haz clic para ver más" : "Este michi ya fue adoptado"}
     >
       <div className="p-1" style={{ overflow: "hidden" }}>
         <img
@@ -37,8 +30,9 @@ const CatCard = ({ cat }) => {
         />
       </div>
 
+      {/* Información del gato */}
       <div className="card-body text-center p-2 position-relative">
-        <h6 className="card-title text-uppercase fw-bold mb-1">{cat.name}</h6>
+        <h6 className="card-title text-uppercase fw-bold mb-1 " >{cat.name}</h6>
         <hr />
         <p className="mb-1" style={{ fontSize: "0.85rem" }}>
           <strong>Raza:</strong> {cat.breed || "No especificada"}
@@ -52,15 +46,21 @@ const CatCard = ({ cat }) => {
         <p className="mb-0" style={{ fontSize: "0.85rem" }}>
           <strong>Sexo:</strong> {cat.sex === "male" ? "Macho" : "Hembra"}
         </p>
-
         <div
           className="position-absolute"
-          style={{ bottom: "10px", right: "10px" }}
+          style={{
+            bottom: "10px",
+            right: "10px",
+
+          }}
+          // Importante: Detenemos la propagación del clic aquí para que el botón AddFavorite funcione
+          // y no active el handleClick de la tarjeta principal al hacer clic en él.
           onClick={(e) => e.stopPropagation()}
         >
           <AddFavorite michiId={cat.id} />
         </div>
       </div>
+
     </div>
   );
 };
